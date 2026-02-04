@@ -310,7 +310,8 @@ KNOWLEDGE_BASE = {
         "Neuroscience": {"cat": "Natural", "methods": ["Neuroimaging", "Electrophys"], "tools": ["fMRI", "EEG"], "facets": ["Plasticity", "Synaptic"]},
         "Psychology": {"cat": "Social", "methods": ["Double-Blind Trials", "Psychometrics"], "tools": ["fMRI", "Testing Kits"], "facets": ["Behavioral", "Cognitive"]},
         "Sociology": {"cat": "Social", "methods": ["Ethnography", "Surveys"], "tools": ["Data Analytics", "Archives"], "facets": ["Stratification", "Dynamics"]},
-        "Computer Science": {"cat": "Formal", "methods": ["Algorithm Design", "Verification"], "tools": ["LLMGraphTransformer", "GPU Clusters", "Git"], "facets": ["AI", "Cybersecurity"]},
+        "Computer Science": {"cat": "Formal", "methods": ["Algorithm Design", "Verification"], "tools": ["LLMGraphTransformer", "GPU Clusters"], "facets": ["AI", "Cybersecurity"]},
+        "Psychiatry": {"cat": "Applied/Medical", "methods": ["Diagnosis", "Clinical Trials"], "tools": ["DSM-5", "EEG"], "facets": ["Clinical Psychiatry", "Neuropsychiatry"]},
         "Medicine": {"cat": "Applied", "methods": ["Clinical Trials", "Epidemiology"], "tools": ["MRI/CT", "Bio-Markers"], "facets": ["Immunology", "Pharmacology"]},
         "Engineering": {"cat": "Applied", "methods": ["Prototyping", "FEA Analysis"], "tools": ["3D Printers", "CAD Software"], "facets": ["Robotics", "Nanotech"]},
         "Library Science": {"cat": "Applied", "methods": ["Taxonomy", "Appraisal"], "tools": ["OPAC", "Metadata"], "facets": ["Retrieval", "Knowledge Org"]},
@@ -581,5 +582,6 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v21.0 Human Thinking Metamodel Architecture | 2026")
+
 
 
