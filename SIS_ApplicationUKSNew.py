@@ -20,6 +20,7 @@ st.set_page_config(
 )
 
 # Integracija CSS za vizualne poudarke, Google linke in gladko navigacijo
+# Vključuje stilske definicije za semantične poudarke in interaktivne elemente
 st.markdown("""
 <style>
     .semantic-node-highlight {
@@ -59,11 +60,18 @@ st.markdown("""
         line-height: 1.8;
         font-size: 1.05em;
     }
+    .metamodel-box {
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #f8f9fa;
+        border-left: 5px solid #00B0F0;
+        margin-bottom: 20px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 def get_svg_base64(svg_str):
-    """Pretvori SVG v base64 format za prikaz slike."""
+    """Pretvori SVG v base64 format za prikaz slike v Streamlit sidebarju."""
     return base64.b64encode(svg_str.encode('utf-8')).decode('utf-8')
 
 # --- LOGOTIP: 3D RELIEF (Embedded SVG) ---
@@ -98,7 +106,8 @@ SVG_3D_RELIEF = """
 # --- CYTOSCAPE RENDERER Z DINAMIČNIMI OBLIKAMI IN IZVOZOM + LUPA ---
 def render_cytoscape_network(elements, container_id="cy"):
     """
-    Izriše interaktivno omrežje Cytoscape.js s podporo za oblike, shranjevanje slike in funkcijo lupe.
+    Izriše interaktivno omrežje Cytoscape.js s podporo za oblike iz metamodela,
+    shranjevanje slike in funkcijo lupe za fokusiranje vozlišč.
     """
     cyto_html = f"""
     <div style="position: relative;">
@@ -229,9 +238,66 @@ def fetch_author_bibliographies(author_input):
             except: pass
     return comprehensive_biblio
 
-# =========================================================
-# 1. POPOLNA MULTIDIMENZIONALNA ONTOLOGIJA (IMAGE LOGIC)
-# =========================================================
+# =========================================================================
+# 1. POPOLNA ONTOLOGIJA Z IMPLEMENTACIJO METAMODELA (Basic Human Thinking)
+# =========================================================================
+# Vsebuje definicije vozlišč, barv in logičnih povezav iz priložene slike.
+
+HUMAN_THINKING_METAMODEL = {
+    "nodes": {
+        "Human mental concentration": {"color": "#A6A6A6", "shape": "rectangle"},
+        "Identity": {"color": "#C6EFCE", "shape": "rectangle"},
+        "Autobiographical memory": {"color": "#C6EFCE", "shape": "rectangle"},
+        "Mission": {"color": "#92D050", "shape": "rectangle"},
+        "Vision": {"color": "#FFFF00", "shape": "rectangle"},
+        "Goal": {"color": "#00B0F0", "shape": "rectangle"},
+        "Problem": {"color": "#F2DCDB", "shape": "rectangle"},
+        "Ethics/moral": {"color": "#FFC000", "shape": "rectangle"},
+        "Hierarchy of interests": {"color": "#F8CBAD", "shape": "rectangle"},
+        "Rule": {"color": "#F2F2F2", "shape": "rectangle"},
+        "Decision-making": {"color": "#FFFF99", "shape": "rectangle"},
+        "Problem solving": {"color": "#D9D9D9", "shape": "rectangle"},
+        "Conflict situation": {"color": "#00FF00", "shape": "rectangle"},
+        "Knowledge": {"color": "#DDEBF7", "shape": "rectangle"},
+        "Tool": {"color": "#00B050", "shape": "rectangle"},
+        "Experience": {"color": "#00B050", "shape": "rectangle"},
+        "Classification": {"color": "#CCC0DA", "shape": "rectangle"},
+        "Psychological aspect": {"color": "#F8CBAD", "shape": "rectangle"},
+        "Sociological aspect": {"color": "#00FFFF", "shape": "rectangle"}
+    },
+    "relations": [
+        ("Human mental concentration", "Identity", "has"),
+        ("Human mental concentration", "Mission", "can have"),
+        ("Identity", "Autobiographical memory", "has"),
+        ("Mission", "Vision", "can have"),
+        ("Vision", "Goal", "can have"),
+        ("Problem", "Identity", "threatens"),
+        ("Problem", "Mission", "impedes"),
+        ("Problem", "Vision", "impedes"),
+        ("Problem", "Goal", "threatens"),
+        ("Problem", "Ethics/moral", "has"),
+        ("Ethics/moral", "Problem", "can solve"),
+        ("Problem", "Rule", "can be connected"),
+        ("Hierarchy of interests", "Goal", "realizes"),
+        ("Hierarchy of interests", "Knowledge", "realizes or hinders"),
+        ("Rule", "Goal", "realizes or hinders"),
+        ("Rule", "Decision-making", "realizes or hinders"),
+        ("Knowledge", "Goal", "acquisition"),
+        ("Decision-making", "Problem solving", "realizes or hinders"),
+        ("Ethics/moral", "Problem solving", "helps or hinders"),
+        ("Problem", "Problem solving", "should"),
+        ("Problem solving", "Conflict situation", "yes or no"),
+        ("Knowledge", "Classification", "with the help of"),
+        ("Knowledge", "Tool", "with the help of"),
+        ("Knowledge", "Experience", "with the help of"),
+        ("Experience", "Psychological aspect", "can be the outcome"),
+        ("Experience", "Sociological aspect", "can be the outcome"),
+        ("Conflict situation", "Psychological aspect", "can be the outcome"),
+        ("Conflict situation", "Sociological aspect", "can be the outcome"),
+        ("Psychological aspect", "Sociological aspect", "interconnected")
+    ]
+}
+
 KNOWLEDGE_BASE = {
     "mental approaches": ["Perspective shifting", "Induction", "Deduction", "Hierarchy", "Mini-max", "Whole and part", "Addition and composition", "Balance", "Abstraction and elimination", "Openness and closedness", "Bipolarity and dialectics", "Framework and foundation", "Pleasure and displeasure", "Similarity and difference", "Core (Attraction & Repulsion)", "Condensation", "Constant", "Associativity"],
     "User profiles": {"Adventurers": {"description": "Explorers of hidden patterns."}, "Applicators": {"description": "Efficiency focused."}, "Know-it-alls": {"description": "Systemic clarity."}, "Observers": {"description": "System monitors."}},
@@ -287,9 +353,9 @@ with st.sidebar:
         1. **API Key**: Enter your key to connect the AI engine. It is NOT stored on the server.
         2. **Minimal Config**: Physics, CS, and Linguistics are pre-selected.
         3. **Authors**: Provide author names to fetch ORCID metadata.
-        4. **Inquiry**: Submit a complex query for an exhaustive dissertation.
-        5. **Semantic Graph**: Explore colorful nodes interconnected via TT, BT, NT logic.
-        6. **Shapes & 3D**: Request triangles, rectangles or 3D bodies in your inquiry.
+        4. **Metamodel Logic**: The system now integrates the 'Basic Human Thinking' architecture.
+        5. **Semantic Graph**: Explore colorful nodes interconnected via metamodel logic (TT, BT, NT).
+        6. **Shapes & 3D**: Nodes use specific shapes: rectangles, ellipses, or diamonds.
         7. **Export PNG**: Use the 💾 button to save the graph to your local disk.
         """)
         if st.button("Close Guide ✖️"): st.session_state.show_user_guide = False; st.rerun()
@@ -320,7 +386,16 @@ with st.sidebar:
     st.link_button("🎓 Google Scholar", "https://scholar.google.com/", use_container_width=True)
 
 st.title("🧱 SIS Universal Knowledge Synthesizer")
-st.markdown("Advanced Multi-dimensional synthesis with **Geometrical Exportable Interdisciplinary Architecture**.")
+st.markdown("Advanced Multi-dimensional synthesis with **Basic Human Thinking Metamodel Integration**.")
+
+# PRIKAZ METAMODELA KOT REFERENČNI OKVIR
+st.markdown("""
+<div class="metamodel-box">
+    <b>🧠 Integrated Metamodel Architecture:</b> 
+    The current session integrates nodes like <i>Concentration, Identity, Mission, Vision, Goal, Problem, </i> and outcomes like <i>Psychological & Sociological Aspects</i>. 
+    The logic follows exact relationships: <code>Problem threatens Identity</code>, <code>Rule realizes Goal</code>, <code>Conflict results in Sociological outcome</code>.
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("### 🛠️ Configure Your Multi-Dimensional Cognitive Build")
 
@@ -336,8 +411,7 @@ with r2_c1:
     sel_profiles = st.multiselect("1. User Profiles:", list(KNOWLEDGE_BASE["User profiles"].keys()), default=["Adventurers"])
 with r2_c2:
     all_sciences = sorted(list(KNOWLEDGE_BASE["Science fields"].keys()))
-    # PRIVZETO: Physics, Computer science in Linguistics
-    sel_sciences = st.multiselect("2. Science Fields:", all_sciences, default=["Physics", "Computer Science", "Linguistics"])
+    sel_sciences = st.multiselect("2. Science Fields:", all_sciences, default=["Physics", "Psychology", "Sociology"])
 with r2_c3:
     expertise = st.select_slider("3. Expertise Level:", options=["Novice", "Intermediate", "Expert"], value=st.session_state.expertise_val)
 
@@ -368,7 +442,7 @@ with r4_c3:
 
 st.divider()
 user_query = st.text_area("❓ Your Synthesis Inquiry:", 
-                         placeholder="Create a synergy for global problems using triangle shapes for causes and 3D geometric bodies for solutions.",
+                         placeholder="Explain how human mental concentration and personal identity interact when solving complex interdisciplinary problems.",
                          height=150, key="user_query_key")
 
 # =========================================================
@@ -397,43 +471,46 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 logic_type = "Hierarchical associative logic"
                 logic_desc = "Integriraj CELOTEN nabor relacij: Hierarhične (TT, BT, NT) za strukturo in asociativne (AS, EQ, IN) za lateralne povezave."
 
-            # SISTEMSKO NAVODILO (Z INTEGRIRANO LOGIKO IN POVEČANIM ŠTEVILOM VOZLIŠČ)
+            # PRIPRAVA METAMODEL KONTEKSTA ZA AI
+            metamodel_context = json.dumps(HUMAN_THINKING_METAMODEL)
+
+            # SISTEMSKO NAVODILO (Z INTEGRIRANIM METAMODELOM)
             sys_prompt = f"""
             You are the SIS Synthesizer. Perform an exhaustive dissertation (1500+ words).
             
             MANDATORY ARCHITECTURAL LOGIC: {logic_type}
             {logic_desc}
 
-            STRUCTURE (MANDATORY IMAGE LOGIC): 
-            1. Root: Authors --TT--> User profiles, Science fields, Expertise level.
-            2. Science fields --BT--> Expertise level --NT--> Structural models.
-            3. Structural models --AS--> Scientific paradigms.
-            4. Scientific paradigms --RT--> mental approaches, methodologies in specific tools.
-            5. Scientific paradigms --AS--> Context/Goal.
-            6. In all graph edges, use the correct tags: TT, BT, NT, AS, EQ, IN.
+            CORE METAMODEL INTEGRATION (MANDATORY):
+            You must anchor your synthesis in the 'Basic Human Thinking and Decision Making' metamodel provided here: {metamodel_context}.
+            
+            Key structural rules from the image:
+            - Start with 'Human mental concentration'.
+            - Map 'Identity' as a node that 'Problem' threatens.
+            - Map 'Decision-making' as something 'Rule' realizes or hinders.
+            - Map 'Psychological aspect' and 'Sociological aspect' as interconnected outcomes of Experience/Conflict.
             
             FIELDS: {", ".join(sel_sciences)}. CONTEXT AUTHORS: {biblio}.
             
-            THESAURUS ALGORITHM & UML LOGIC.
-
+            THESAURUS ALGORITHM & UML LOGIC. Ensure dense interconnection.
+            
             GEOMETRICAL VISUALIZATION TASK:
-            - Analyze user inquiry for shape preferences (triangle, rectangle, hexagon, 3D/diamond).
-            - Default shape is 'ellipse'.
+            - Analyze user inquiry for shape preferences. Default shape is 'ellipse'. 
+            - Use colors and shapes from the metamodel JSON provided.
             
             STRICT FORMATTING & SPACE ALLOCATION:
             - Focus 100% of the textual content on deep research, causal analysis, and innovative problem-solving synergy.
-            - ABSOLUTELY PROHIBITED: Do not list nodes, edges, properties, shapes, or colors in text.
             - DO NOT explain the visualization or JSON schema in the text.
             - End with '### SEMANTIC_GRAPH_JSON' followed by valid JSON only.
             
             GRAPH DENSITY REQUIREMENT:
-            - GENERATE A DENSE SEMANTIC NETWORK WITH APPROXIMATELY 30 INTERCONNECTED NODES.
-            - Ensure every scientific field and structural model is represented by multiple specific leaf nodes.
+            - GENERATE A DENSE SEMANTIC NETWORK WITH APPROXIMATELY 30-40 INTERCONNECTED NODES.
+            - Every node must strictly follow the Color/Shape logic from the Metamodel context.
             
-            JSON schema: {{"nodes": [{{"id": "n1", "label": "Text", "type": "Root|Branch|Leaf|Class", "color": "#hex", "shape": "triangle|rectangle|ellipse|diamond"}}], "edges": [{{"source": "n1", "target": "n2", "rel_type": "BT|NT|AS|Inheritance|EQ|TT|IN"}}]}}
+            JSON schema: {{"nodes": [{{"id": "n1", "label": "Text", "type": "Root|Branch|Leaf|Class", "color": "#hex", "shape": "triangle|rectangle|ellipse|diamond"}}], "edges": [{{"source": "n1", "target": "n2", "rel_type": "BT|NT|AS|TT|outcome_of"}}]}}
             """
             
-            with st.spinner('Synthesizing exhaustive interdisciplinary synergy (8–40s)...'):
+            with st.spinner('Synthesizing exhaustive interdisciplinary synergy with Thinking Metamodel (8–40s)...'):
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": user_query}],
@@ -474,8 +551,8 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 if len(parts) > 1:
                     try:
                         g_json = json.loads(re.search(r'\{.*\}', parts[1], re.DOTALL).group())
-                        st.subheader("🕸️ LLMGraphTransformer: Unified Interdisciplinary Network")
-                        st.caption(f"{logic_type}")
+                        st.subheader("🕸️ Metamodel-Driven Semantic Network")
+                        st.caption(f"{logic_type} utilizing Human Thinking Metamodel Logic")
                         
                         elements = []
                         for n in g_json.get("nodes", []):
@@ -501,5 +578,6 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
         except Exception as e:
             st.error(f"Synthesis failed: {e}")
 
+# PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
-st.caption("SIS Universal Knowledge Synthesizer | v18.0 Comprehensive 18D Geometrical Export Edition | 2026")
+st.caption("SIS Universal Knowledge Synthesizer | v21.0 Human Thinking Metamodel Architecture | 2026")
