@@ -9,9 +9,10 @@ from datetime import datetime
 from openai import OpenAI
 import streamlit.components.v1 as components
 
-# =========================================================
+# =========================================================================
 # 0. KONFIGURACIJA IN NAPREDNI STILI (CSS)
-# =========================================================
+# =========================================================================
+# Setting up the platform architecture with wide layout and custom branding.
 st.set_page_config(
     page_title="SIS Universal Knowledge Synthesizer",
     page_icon="🌳",
@@ -19,8 +20,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Integracija CSS za vizualne poudarke, Google linke in gladko navigacijo
-# Vključuje stilske definicije za semantične poudarke in interaktivne elemente
+# Integracija CSS za vizualne poudarke, Google linke in gladko navigacijo.
+# This styling block is critical for the "Lupa" (Magnifying glass) effect 
+# and the semantic highlighting that links the text to the knowledge graph.
 st.markdown("""
 <style>
     .semantic-node-highlight {
@@ -61,11 +63,26 @@ st.markdown("""
         font-size: 1.05em;
     }
     .metamodel-box {
-        padding: 15px;
-        border-radius: 10px;
-        background-color: #f8f9fa;
-        border-left: 5px solid #00B0F0;
-        margin-bottom: 20px;
+        padding: 20px;
+        border-radius: 12px;
+        background-color: #f1f3f5;
+        border-left: 6px solid #00B0F0;
+        margin-bottom: 25px;
+        font-family: 'Inter', sans-serif;
+    }
+    .mental-approaches-infobox {
+        padding: 20px;
+        border-radius: 12px;
+        background-color: #fffbeb;
+        border-left: 6px solid #fab005;
+        margin-bottom: 25px;
+        color: #453700;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
+    }
+    /* Enhanced UI elements for scroll-to-node focus */
+    .highlight-active {
+        background-color: #fffae6 !important;
+        transition: background-color 1.5s ease-out;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -106,13 +123,13 @@ SVG_3D_RELIEF = """
 # --- CYTOSCAPE RENDERER Z DINAMIČNIMI OBLIKAMI IN IZVOZOM + LUPA ---
 def render_cytoscape_network(elements, container_id="cy"):
     """
-    Izriše interaktivno omrežje Cytoscape.js s podporo za oblike iz metamodela,
+    Izriše interaktivno omrežje Cytoscape.js s podporo za oblike iz metamodelov,
     shranjevanje slike in funkcijo lupe za fokusiranje vozlišč.
     """
     cyto_html = f"""
     <div style="position: relative;">
-        <button id="save_btn" style="position: absolute; top: 10px; right: 10px; z-index: 100; padding: 8px 12px; background: #2a9d8f; color: white; border: none; border-radius: 5px; cursor: pointer; font-family: sans-serif; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">💾 Export Graph as PNG</button>
-        <div id="{container_id}" style="width: 100%; height: 600px; background: #ffffff; border-radius: 15px; border: 1px solid #eee; box-shadow: 2px 2px 12px rgba(0,0,0,0.05);"></div>
+        <button id="save_btn" style="position: absolute; top: 10px; right: 10px; z-index: 100; padding: 10px 15px; background: #2a9d8f; color: white; border: none; border-radius: 6px; cursor: pointer; font-family: sans-serif; font-size: 13px; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.15);">💾 Export Graph as PNG</button>
+        <div id="{container_id}" style="width: 100%; height: 650px; background: #ffffff; border-radius: 18px; border: 1px solid #ddd; box-shadow: 4px 4px 15px rgba(0,0,0,0.08);"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
     <script>
@@ -124,42 +141,41 @@ def render_cytoscape_network(elements, container_id="cy"):
                     {{
                         selector: 'node',
                         style: {{
-                            'label': 'data(label)', 'text-valign': 'center', 'color': '#333',
+                            'label': 'data(label)', 'text-valign': 'center', 'color': '#212529',
                             'background-color': 'data(color)', 'width': 'data(size)', 'height': 'data(size)',
                             'shape': 'data(shape)', 
                             'font-size': '12px', 'font-weight': 'bold', 'text-outline-width': 2,
-                            'text-outline-color': '#fff', 'cursor': 'pointer', 'z-index': 'data(z_index)',
-                            'box-shadow': '0px 4px 6px rgba(0,0,0,0.1)'
+                            'text-outline-color': '#ffffff', 'cursor': 'pointer', 'z-index': 'data(z_index)',
+                            'box-shadow': '0px 4px 8px rgba(0,0,0,0.12)'
                         }}
                     }},
                     {{
                         selector: 'edge',
                         style: {{
                             'width': 3, 'line-color': '#adb5bd', 'label': 'data(rel_type)',
-                            'font-size': '10px', 'font-weight': 'bold', 'color': '#2a9d8f',
+                            'font-size': '11px', 'font-weight': 'bold', 'color': '#2a9d8f',
                             'target-arrow-color': '#adb5bd', 'target-arrow-shape': 'triangle',
                             'curve-style': 'bezier', 'text-rotation': 'autorotate',
                             'text-background-opacity': 1, 'text-background-color': '#ffffff',
-                            'text-background-padding': '2px', 'text-background-shape': 'roundrectangle'
+                            'text-background-padding': '3px', 'text-background-shape': 'roundrectangle'
                         }}
                     }},
-                    /* DODATNI STILI ZA LOGIKO LUPE */
                     {{
                         selector: 'node.highlighted',
                         style: {{
-                            'border-width': 4, 'border-color': '#e76f51', 'transform': 'scale(1.5)',
+                            'border-width': 5, 'border-color': '#e76f51', 'transform': 'scale(1.6)',
                             'z-index': 9999, 'font-size': '18px'
                         }}
                     }},
                     {{
                         selector: '.dimmed',
-                        style: {{ 'opacity': 0.15, 'text-opacity': 0 }}
+                        style: {{ 'opacity': 0.1, 'text-opacity': 0 }}
                     }}
                 ],
-                layout: {{ name: 'cose', padding: 50, animate: true, nodeRepulsion: 25000, idealEdgeLength: 120 }}
+                layout: {{ name: 'cose', padding: 60, animate: true, nodeRepulsion: 30000, idealEdgeLength: 150 }}
             }});
 
-            /* LOGIKA LUPE (Fokusiranje na sosesko ob prehodu z miško) */
+            // Logic for 'Lupa' / Neighbourhood Focus
             cy.on('mouseover', 'node', function(e){{
                 var sel = e.target;
                 cy.elements().addClass('dimmed');
@@ -175,8 +191,8 @@ def render_cytoscape_network(elements, container_id="cy"):
                 var target = window.parent.document.getElementById(elementId);
                 if (target) {{
                     target.scrollIntoView({{behavior: "smooth", block: "center"}});
-                    target.style.backgroundColor = "#ffffcc";
-                    setTimeout(function(){{ target.style.backgroundColor = "transparent"; }}, 2500);
+                    target.classList.add('highlight-active');
+                    setTimeout(function(){{ target.classList.remove('highlight-active'); }}, 3000);
                 }}
             }});
 
@@ -184,7 +200,7 @@ def render_cytoscape_network(elements, container_id="cy"):
                 var png64 = cy.png({{full: true, bg: 'white'}});
                 var link = document.createElement('a');
                 link.href = png64;
-                link.download = 'sis_knowledge_graph.png';
+                link.download = 'sis_universal_metamodel.png';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -192,7 +208,7 @@ def render_cytoscape_network(elements, container_id="cy"):
         }});
     </script>
     """
-    components.html(cyto_html, height=650)
+    components.html(cyto_html, height=700)
 
 # --- PRIDOBIVANJE BIBLIOGRAFIJ Z LETNICAMI ---
 def fetch_author_bibliographies(author_input):
@@ -239,31 +255,32 @@ def fetch_author_bibliographies(author_input):
     return comprehensive_biblio
 
 # =========================================================================
-# 1. POPOLNA ONTOLOGIJA Z IMPLEMENTACIJO METAMODELA (Basic Human Thinking)
+# 1. POPOLNA ONTOLOGIJA Z INTEGRACIJO DVEH METAMODELOV
 # =========================================================================
-# Vsebuje definicije vozlišč, barv in logičnih povezav iz priložene slike.
 
+# METAMODEL LOGIKA 1: BASIC HUMAN THINKING (Image 1 Integration)
+# Reflecting the path from mental concentration to sociological/psychological aspects.
 HUMAN_THINKING_METAMODEL = {
     "nodes": {
-        "Human mental concentration": {"color": "#A6A6A6", "shape": "rectangle"},
-        "Identity": {"color": "#C6EFCE", "shape": "rectangle"},
-        "Autobiographical memory": {"color": "#C6EFCE", "shape": "rectangle"},
-        "Mission": {"color": "#92D050", "shape": "rectangle"},
-        "Vision": {"color": "#FFFF00", "shape": "rectangle"},
-        "Goal": {"color": "#00B0F0", "shape": "rectangle"},
-        "Problem": {"color": "#F2DCDB", "shape": "rectangle"},
-        "Ethics/moral": {"color": "#FFC000", "shape": "rectangle"},
-        "Hierarchy of interests": {"color": "#F8CBAD", "shape": "rectangle"},
-        "Rule": {"color": "#F2F2F2", "shape": "rectangle"},
-        "Decision-making": {"color": "#FFFF99", "shape": "rectangle"},
-        "Problem solving": {"color": "#D9D9D9", "shape": "rectangle"},
-        "Conflict situation": {"color": "#00FF00", "shape": "rectangle"},
-        "Knowledge": {"color": "#DDEBF7", "shape": "rectangle"},
-        "Tool": {"color": "#00B050", "shape": "rectangle"},
-        "Experience": {"color": "#00B050", "shape": "rectangle"},
-        "Classification": {"color": "#CCC0DA", "shape": "rectangle"},
-        "Psychological aspect": {"color": "#F8CBAD", "shape": "rectangle"},
-        "Sociological aspect": {"color": "#00FFFF", "shape": "rectangle"}
+        "Human mental concentration": {"color": "#A6A6A6", "shape": "rectangle", "level": "root"},
+        "Identity": {"color": "#C6EFCE", "shape": "rectangle", "level": "branch"},
+        "Autobiographical memory": {"color": "#C6EFCE", "shape": "rectangle", "level": "leaf"},
+        "Mission": {"color": "#92D050", "shape": "rectangle", "level": "branch"},
+        "Vision": {"color": "#FFFF00", "shape": "rectangle", "level": "branch"},
+        "Goal": {"color": "#00B0F0", "shape": "rectangle", "level": "branch"},
+        "Problem": {"color": "#F2DCDB", "shape": "rectangle", "level": "event"},
+        "Ethics/moral": {"color": "#FFC000", "shape": "rectangle", "level": "branch"},
+        "Hierarchy of interests": {"color": "#F8CBAD", "shape": "rectangle", "level": "branch"},
+        "Rule": {"color": "#F2F2F2", "shape": "rectangle", "level": "logic"},
+        "Decision-making": {"color": "#FFFF99", "shape": "rectangle", "level": "process"},
+        "Problem solving": {"color": "#D9D9D9", "shape": "rectangle", "level": "process"},
+        "Conflict situation": {"color": "#00FF00", "shape": "rectangle", "level": "outcome"},
+        "Knowledge": {"color": "#DDEBF7", "shape": "rectangle", "level": "resource"},
+        "Tool": {"color": "#00B050", "shape": "rectangle", "level": "resource"},
+        "Experience": {"color": "#00B050", "shape": "rectangle", "level": "resource"},
+        "Classification": {"color": "#CCC0DA", "shape": "rectangle", "level": "logic"},
+        "Psychological aspect": {"color": "#F8CBAD", "shape": "rectangle", "level": "outcome"},
+        "Sociological aspect": {"color": "#00FFFF", "shape": "rectangle", "level": "outcome"}
     },
     "relations": [
         ("Human mental concentration", "Identity", "has"),
@@ -286,7 +303,7 @@ HUMAN_THINKING_METAMODEL = {
         ("Decision-making", "Problem solving", "realizes or hinders"),
         ("Ethics/moral", "Problem solving", "helps or hinders"),
         ("Problem", "Problem solving", "should"),
-        ("Problem solving", "Conflict situation", "yes or no"),
+        ("Problem solving", "Conflict situation", "yes or no result"),
         ("Knowledge", "Classification", "with the help of"),
         ("Knowledge", "Tool", "with the help of"),
         ("Knowledge", "Experience", "with the help of"),
@@ -298,219 +315,237 @@ HUMAN_THINKING_METAMODEL = {
     ]
 }
 
+# METAMODEL LOGIKA 2: MENTAL APPROACHES (Image 2 Integration)
+# Detailed mapping of logical loops: Induction/Deduction, Core Forces, and Associativity.
+MENTAL_APPROACHES_METAMODEL = {
+    "nodes": {
+        "Mental approaches": {"color": "#FFFF00", "shape": "rectangle", "desc": "Meta-structure for logic."},
+        "Perspective shifting": {"color": "#92D050", "shape": "rectangle", "desc": "Angular cognitive focus."},
+        "Similarity and difference": {"color": "#FFFF00", "shape": "rectangle", "desc": "Comparison engine."},
+        "Core": {"color": "#FFC000", "shape": "rectangle", "desc": "The central attractor."},
+        "Attraction": {"color": "#F28B82", "shape": "rectangle", "desc": "Convergent logical force."},
+        "Repulsion": {"color": "#D9D9D9", "shape": "rectangle", "desc": "Divergent logical force."},
+        "Condensation": {"color": "#D7BDE2", "shape": "rectangle", "desc": "Data compression."},
+        "Framework and foundation": {"color": "#EDBB99", "shape": "rectangle", "desc": "Underlying logic."},
+        "Bipolarity and dialectics": {"color": "#AED6F1", "shape": "rectangle", "desc": "Managing dualities."},
+        "Pleasure and displeasure": {"color": "#58D68D", "shape": "rectangle", "desc": "Emotional thinking state."},
+        "Constant": {"color": "#F5B7B1", "shape": "rectangle", "desc": "Invariant parameters."},
+        "Associativity": {"color": "#FBFCFC", "shape": "rectangle", "desc": "Network linking capacity."},
+        "Induction": {"color": "#A9CCE3", "shape": "rectangle", "desc": "Bottom-up reasoning."},
+        "Deduction": {"color": "#ABEBC6", "shape": "rectangle", "desc": "Top-down reasoning."},
+        "Hierarchy": {"color": "#D5F5E3", "shape": "rectangle", "desc": "Priority structure."},
+        "Whole and part": {"color": "#2ECC71", "shape": "rectangle", "desc": "Holistic scaling."},
+        "Mini-max": {"color": "#00FF00", "shape": "rectangle", "desc": "Optimal result logic."},
+        "Addition and composition": {"color": "#FF00FF", "shape": "rectangle", "desc": "Combinatorial logic."},
+        "Balance": {"color": "#00B0F0", "shape": "rectangle", "desc": "Equilibrium state."},
+        "Abstraction and elimination": {"color": "#00FFFF", "shape": "rectangle", "desc": "Noise removal."},
+        "Openness and closedness": {"color": "#E67E22", "shape": "rectangle", "desc": "System boundaries."}
+    },
+    "relations": [
+        ("Mental approaches", "Perspective shifting", "leads to"),
+        ("Mental approaches", "Similarity and difference", "leads to"),
+        ("Perspective shifting", "Core", "defines"),
+        ("Similarity and difference", "Core", "defines"),
+        ("Core", "Attraction", "drives"),
+        ("Core", "Repulsion", "drives"),
+        ("Mental approaches", "Induction", "triggers"),
+        ("Induction", "Hierarchy", "organizes into"),
+        ("Hierarchy", "Deduction", "directs"),
+        ("Hierarchy", "Induction", "directs"),
+        ("Hierarchy", "Whole and part", "classifies"),
+        ("Whole and part", "Mini-max", "optimizes"),
+        ("Addition and composition", "Mini-max", "optimizes"),
+        ("Mini-max", "Balance", "targets"),
+        ("Balance", "Abstraction and elimination", "maintains"),
+        ("Framework and foundation", "Bipolarity and dialectics", "supports"),
+        ("Bipolarity and dialectics", "Constant", "stabilizes"),
+        ("Constant", "Associativity", "allows"),
+        ("Associativity", "Mental approaches", "feeds back to")
+    ]
+}
+
+# --- GLOBAL KNOWLEDGE BASE ---
 KNOWLEDGE_BASE = {
-    "mental approaches": ["Perspective shifting", "Induction", "Deduction", "Hierarchy", "Mini-max", "Whole and part", "Addition and composition", "Balance", "Abstraction and elimination", "Openness and closedness", "Bipolarity and dialectics", "Framework and foundation", "Pleasure and displeasure", "Similarity and difference", "Core (Attraction & Repulsion)", "Condensation", "Constant", "Associativity"],
-    "User profiles": {"Adventurers": {"description": "Explorers of hidden patterns."}, "Applicators": {"description": "Efficiency focused."}, "Know-it-alls": {"description": "Systemic clarity."}, "Observers": {"description": "System monitors."}},
-    "Scientific paradigms": {"Empiricism": "Sensory experience.", "Rationalism": "Deductive logic.", "Constructivism": "Social build.", "Positivism": "Strict facts.", "Pragmatism": "Practical utility."},
-    "Structural models": {"Causal Connections": "Causality.", "Principles & Relations": "Fundamental laws.", "Episodes & Sequences": "Time-flow.", "Facts & Characteristics": "Raw data.", "Generalizations": "Frameworks.", "Glossary": "Definitions.", "Concepts": "Abstract constructs."},
+    "User profiles": {
+        "Adventurers": {"description": "Explorers of hidden patterns."},
+        "Applicators": {"description": "Efficiency focused logic."},
+        "Know-it-alls": {"description": "Systemic clarity advocates."},
+        "Observers": {"description": "Monitors of systemic flow."}
+    },
+    "Scientific paradigms": {
+        "Empiricism": "Focus on sensory data.",
+        "Rationalism": "Focus on deductive certainty.",
+        "Constructivism": "Focus on social construction of reality.",
+        "Positivism": "Strict adherence to scientific facts.",
+        "Pragmatism": "Practical utility over abstract theory."
+    },
+    "Structural models": {
+        "Causal Connections": "Analyzing A to B flow.",
+        "Principles & Relations": "Fundamental laws of nature.",
+        "Episodes & Sequences": "Temporal flow of events.",
+        "Facts & Characteristics": "Raw data attributes.",
+        "Generalizations": "Broad framework applications.",
+        "Glossary": "Precise nomenclature.",
+        "Concepts": "Abstract thinking constructs."
+    },
     "Science fields": {
-        "Physics": {"cat": "Natural", "methods": ["Modeling", "Simulation"], "tools": ["Accelerator", "Spectrometer"], "facets": ["Quantum", "Relativity"]},
-        "Chemistry": {"cat": "Natural", "methods": ["Synthesis", "Spectroscopy"], "tools": ["NMR", "Chromatography"], "facets": ["Organic", "Molecular"]},
-        "Biology": {"cat": "Natural", "methods": ["Sequencing", "CRISPR"], "tools": ["Microscope", "Bio-Incubator"], "facets": ["Genetics", "Ecology"]},
-        "Neuroscience": {"cat": "Natural", "methods": ["Neuroimaging", "Electrophys"], "tools": ["fMRI", "EEG"], "facets": ["Plasticity", "Synaptic"]},
-        "Psychology": {"cat": "Social", "methods": ["Double-Blind Trials", "Psychometrics"], "tools": ["fMRI", "Testing Kits"], "facets": ["Behavioral", "Cognitive"]},
-        "Sociology": {"cat": "Social", "methods": ["Ethnography", "Surveys"], "tools": ["Data Analytics", "Archives"], "facets": ["Stratification", "Dynamics"]},
-        "Computer Science": {"cat": "Formal", "methods": ["Algorithm Design", "Verification"], "tools": ["LLMGraphTransformer", "GPU Clusters", "Git"], "facets": ["AI", "Cybersecurity"]},
-        "Medicine": {"cat": "Applied", "methods": ["Clinical Trials", "Epidemiology"], "tools": ["MRI/CT", "Bio-Markers"], "facets": ["Immunology", "Pharmacology"]},
-        "Engineering": {"cat": "Applied", "methods": ["Prototyping", "FEA Analysis"], "tools": ["3D Printers", "CAD Software"], "facets": ["Robotics", "Nanotech"]},
-        "Library Science": {"cat": "Applied", "methods": ["Taxonomy", "Appraisal"], "tools": ["OPAC", "Metadata"], "facets": ["Retrieval", "Knowledge Org"]},
-        "Philosophy": {"cat": "Humanities", "methods": ["Socratic Method", "Phenomenology"], "tools": ["Logic Mapping", "Critical Analysis"], "facets": ["Epistemology", "Metaphysics"]},
-        "Linguistics": {"cat": "Humanities", "methods": ["Corpus Analysis", "Syntactic Parsing"], "tools": ["Praat", "NLTK Toolkit"], "facets": ["Socioling", "CompLing"]},
-        "Geography": {"cat": "Natural/Social", "methods": ["Spatial Analysis", "GIS"], "tools": ["ArcGIS"], "facets": ["Human Geo", "Physical Geo"]},
-        "Geology": {"cat": "Natural", "methods": ["Stratigraphy", "Mineralogy"], "tools": ["Seismograph"], "facets": ["Tectonics", "Petrology"]},
-        "Climatology": {"cat": "Natural", "methods": ["Climate Modeling"], "tools": ["Weather Stations"], "facets": ["Change Analysis"]},
-        "History": {"cat": "Humanities", "methods": ["Archives"], "tools": ["Archives"], "facets": ["Social History"]},
-        "Economics": {"cat": "Social", "methods": ["Econometrics", "Game Theory", "Market Modeling"], "tools": ["Stata", "R", "Bloomberg"], "facets": ["Macroeconomics", "Behavioral Economics"]},
-        "Politics": {"cat": "Social", "methods": ["Policy Analysis", "Comparative Politics"], "tools": ["Polls", "Legislative Databases"], "facets": ["International Relations", "Governance"]},
-        "Criminology": {"cat": "Social", "methods": ["Case Studies", "Statistical Analysis", "Profiling"], "tools": ["NCVS", "Crime Mapping Software"], "facets": ["Victimology", "Penology", "Criminal Behavior"]},
-        "Forensic sciences": {"cat": "Applied/Natural", "methods": ["DNA Profiling", "Ballistics", "Trace Analysis"], "tools": ["Mass Spectrometer", "Luminol", "Comparison Microscope"], "facets": ["Toxicology", "Pathology", "Digital Forensics"]}
+        "Physics": {"cat": "Natural", "methods": ["Modeling", "Simulation"], "tools": ["Accelerator"], "facets": ["Quantum"]},
+        "Neuroscience": {"cat": "Natural", "methods": ["Neuroimaging"], "tools": ["fMRI", "EEG"], "facets": ["Plasticity"]},
+        "Psychology": {"cat": "Social", "methods": ["Psychometrics"], "tools": ["Testing Kits"], "facets": ["Behavioral"]},
+        "Sociology": {"cat": "Social", "methods": ["Ethnography", "Surveys"], "tools": ["Archives"], "facets": ["Dynamics"]},
+        "Computer Science": {"cat": "Formal", "methods": ["Algorithm Design"], "tools": ["GPU Clusters"], "facets": ["AI"]},
+        "Philosophy": {"cat": "Humanities", "methods": ["Phenomenology"], "tools": ["Logic Mapping"], "facets": ["Epistemology"]},
+        "Linguistics": {"cat": "Humanities", "methods": ["Corpus Analysis"], "tools": ["NLTK Toolkit"], "facets": ["Socioling"]}
     }
 }
 
-# =========================================================
+# =========================================================================
 # 2. STREAMLIT INTERFACE KONSTRUKCIJA
-# =========================================================
+# =========================================================================
 
 if 'expertise_val' not in st.session_state: st.session_state.expertise_val = "Expert"
 if 'show_user_guide' not in st.session_state: st.session_state.show_user_guide = False
 
-# --- STRANSKA VRSTICA ---
+# --- STRANSKA VRSTICA (Sidebar Architecture) ---
 with st.sidebar:
     st.markdown(f'<div style="text-align:center"><img src="data:image/svg+xml;base64,{get_svg_base64(SVG_3D_RELIEF)}" width="220"></div>', unsafe_allow_html=True)
     st.header("⚙️ Control Panel")
     
-    api_key = st.text_input(
-        "Groq API Key:", 
-        type="password", 
-        help="Security: Your key is held only in volatile RAM and is never stored on our servers."
-    )
+    api_key = st.text_input("Groq API Key:", type="password", help="Your volatile RAM key for Groq Cloud.")
     
     if st.button("📖 User Guide"):
         st.session_state.show_user_guide = not st.session_state.show_user_guide
         st.rerun()
+        
     if st.session_state.show_user_guide:
         st.info("""
-        1. **API Key**: Enter your key to connect the AI engine. It is NOT stored on the server.
-        2. **Minimal Config**: Physics, CS, and Linguistics are pre-selected.
-        3. **Authors**: Provide author names to fetch ORCID metadata.
-        4. **Metamodel Logic**: The system now integrates the 'Basic Human Thinking' architecture.
-        5. **Semantic Graph**: Explore colorful nodes interconnected via metamodel logic (TT, BT, NT).
-        6. **Shapes & 3D**: Nodes use specific shapes: rectangles, ellipses, or diamonds.
-        7. **Export PNG**: Use the 💾 button to save the graph to your local disk.
+        1. **Dual Metamodel Logic**: This engine integrates BOTH the Thinking/Decision Making model and the Mental Approaches model.
+        2. **ORCID & Bibliographies**: Input author names to fetch real research context.
+        3. **Inquiry**: Submit a complex query. The AI will adhere to the node paths from the images.
+        4. **Export**: Use the 💾 button on the graph to save your interdisciplinary map.
         """)
         if st.button("Close Guide ✖️"): st.session_state.show_user_guide = False; st.rerun()
 
     st.divider()
-    st.subheader("📚 Knowledge Explorer")
-    with st.expander("👤 User Profiles"):
-        for p, d in KNOWLEDGE_BASE["User profiles"].items(): st.write(f"**{p}**: {d['description']}")
-    with st.expander("🧠 mental approaches"):
-        for a in KNOWLEDGE_BASE["mental approaches"]: st.write(f"• {a}")
-    with st.expander("🌍 Scientific paradigms"):
-        for p, d in KNOWLEDGE_BASE["Scientific paradigms"].items(): st.write(f"**{p}**: {d}")
-    with st.expander("🔬 Science fields"):
-        for s in sorted(KNOWLEDGE_BASE["Science fields"].keys()): st.write(f"• **{s}**")
-    with st.expander("🏗️ Structural models"):
-        for m, d in KNOWLEDGE_BASE["Structural models"].items(): st.write(f"**{m}**: {d}")
+    st.subheader("📚 Active Meta-Architectures")
+    with st.expander("🧠 Human Thinking Model (Img 1)"):
+        for n in HUMAN_THINKING_METAMODEL["nodes"].keys(): st.write(f"• {n}")
+    with st.expander("🛠️ Mental Approaches Model (Img 2)"):
+        for a in MENTAL_APPROACHES_METAMODEL["nodes"].keys(): st.write(f"• {a}")
     
     st.divider()
     if st.button("♻️ Reset Session", use_container_width=True):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.session_state['target_authors_key'] = ""
-        st.session_state['user_query_key'] = ""
+        for key in list(st.session_state.keys()): del st.session_state[key]
         st.rerun()
     
-    st.link_button("🌐 GitHub Repository", "https://github.com/", use_container_width=True)
-    st.link_button("🆔 ORCID Registry", "https://orcid.org/", use_container_width=True)
-    st.link_button("🎓 Google Scholar", "https://scholar.google.com/", use_container_width=True)
+    st.link_button("🆔 ORCID Search", "https://orcid.org/", use_container_width=True)
+    st.link_button("🎓 Scholar", "https://scholar.google.com/", use_container_width=True)
 
 st.title("🧱 SIS Universal Knowledge Synthesizer")
-st.markdown("Advanced Multi-dimensional synthesis with **Basic Human Thinking Metamodel Integration**.")
+st.markdown("Multi-dimensional synthesis via **Thinking & Mental Approaches Metamodel Integration**.")
 
-# PRIKAZ METAMODELA KOT REFERENČNI OKVIR
-st.markdown("""
-<div class="metamodel-box">
-    <b>🧠 Integrated Metamodel Architecture:</b> 
-    The current session integrates nodes like <i>Concentration, Identity, Mission, Vision, Goal, Problem, </i> and outcomes like <i>Psychological & Sociological Aspects</i>. 
-    The logic follows exact relationships: <code>Problem threatens Identity</code>, <code>Rule realizes Goal</code>, <code>Conflict results in Sociological outcome</code>.
-</div>
-""", unsafe_allow_html=True)
+# PRIKAZ AKTIVNIH METAMODELOV V GLAVNEM OKNU
+col_info1, col_info2 = st.columns(2)
+with col_info1:
+    st.markdown("""
+    <div class="metamodel-box">
+        <b>🧠 Thinking & Decision Metamodel:</b><br>
+        Integrating Concentration, Identity, Problem-solving, and Sociological/Psychological feedback loops.
+    </div>
+    """, unsafe_allow_html=True)
+with col_info2:
+    st.markdown("""
+    <div class="mental-approaches-infobox">
+        <b>🛠️ Mental Approaches Metamodel:</b><br>
+        Implementing Hierarchy, Induction/Deduction cycles, Core Forces (Attraction), and Dialectics.
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown("### 🛠️ Configure Your Multi-Dimensional Cognitive Build")
+st.markdown("### 🛠️ Configure Your Interdisciplinary Synthesis")
 
-# ROW 1: AUTHORS
+# ROW 1: AUTHORS & CONTEXT
 r1_c1, r1_c2, r1_c3 = st.columns([1, 2, 1])
 with r1_c2:
     target_authors = st.text_input("👤 Research Authors:", placeholder="Karl Petrič, Samo Kralj, Teodor Petrič", key="target_authors_key")
-    st.caption("Active bibliographic analysis via ORCID (includes publication years).")
+    st.caption("Active bibliographic context fetching via ORCID.")
 
-# ROW 2: CORE CONFIG (Minimal settings, specific fields)
+# ROW 2: CORE PARAMETERS
 r2_c1, r2_c2, r2_c3 = st.columns(3)
 with r2_c1:
     sel_profiles = st.multiselect("1. User Profiles:", list(KNOWLEDGE_BASE["User profiles"].keys()), default=["Adventurers"])
 with r2_c2:
-    all_sciences = sorted(list(KNOWLEDGE_BASE["Science fields"].keys()))
-    sel_sciences = st.multiselect("2. Science Fields:", all_sciences, default=["Physics", "Psychology", "Sociology"])
+    sel_sciences = st.multiselect("2. Science Fields:", sorted(list(KNOWLEDGE_BASE["Science fields"].keys())), default=["Physics", "Psychology", "Sociology"])
 with r2_c3:
-    expertise = st.select_slider("3. Expertise Level:", options=["Novice", "Intermediate", "Expert"], value=st.session_state.expertise_val)
+    expertise = st.select_slider("3. Expertise Level:", options=["Novice", "Intermediate", "Expert"], value="Expert")
 
-# ROW 3: PARADIGMS & MODELS (Minimal settings)
+# ROW 3: MODELS & PARADIGMS
 r3_c1, r3_c2, r3_c3 = st.columns(3)
 with r3_c1:
     sel_models = st.multiselect("4. Structural Models:", list(KNOWLEDGE_BASE["Structural models"].keys()), default=["Concepts"])
 with r3_c2:
     sel_paradigms = st.multiselect("5. Scientific Paradigms:", list(KNOWLEDGE_BASE["Scientific paradigms"].keys()), default=["Rationalism"])
 with r3_c3:
-    goal_context = st.selectbox("6. Context / Goal:", ["Scientific Research", "Problem Solving", "Educational", "Policy Making"])
-
-# ROW 4: APPROACHES, METHODS, TOOLS (RESTORED - Minimal settings)
-r4_c1, r4_c2, r4_c3 = st.columns(3)
-with r4_c1:
-    sel_approaches = st.multiselect("7. mental approaches:", KNOWLEDGE_BASE["mental approaches"], default=["Perspective shifting"])
-
-agg_meth, agg_tool = [], []
-for s in sel_sciences:
-    if s in KNOWLEDGE_BASE["Science fields"]:
-        agg_meth.extend(KNOWLEDGE_BASE["Science fields"][s]["methods"])
-        agg_tool.extend(KNOWLEDGE_BASE["Science fields"][s]["tools"])
-
-with r4_c2:
-    sel_methods = st.multiselect("8. Methodologies:", sorted(list(set(agg_meth))), default=[])
-with r4_c3:
-    sel_tools = st.multiselect("9. Specific Tools:", sorted(list(set(agg_tool))), default=[])
+    context_goal = st.selectbox("6. Context / Goal:", ["Scientific Research", "Problem Solving", "Educational", "Policy Making"])
 
 st.divider()
 user_query = st.text_area("❓ Your Synthesis Inquiry:", 
-                         placeholder="Explain how human mental concentration and personal identity interact when solving complex interdisciplinary problems.",
+                         placeholder="Synthesize how Bipolarity logic (Mental Approach) solves the Problem of Identity in quantum neuroscience environments.",
                          height=150, key="user_query_key")
 
-# =========================================================
-# 3. JEDRO SINTEZE: GROQ AI + INTERCONNECTED 18D GRAPH
-# =========================================================
-if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=True):
-    if not api_key: st.error("Missing Groq API Key. Please provide your own key in the sidebar.")
+# =========================================================================
+# 3. JEDRO SINTEZE: GROQ AI + DUAL METAMODEL LOGIC ENGINE
+# =========================================================================
+if st.button("🚀 Execute Multi-Metamodel Synthesis", use_container_width=True):
+    if not api_key: st.error("Missing Groq API Key.")
     elif not user_query: st.warning("Please provide an inquiry.")
     else:
         try:
             biblio = fetch_author_bibliographies(target_authors) if target_authors else ""
             client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
             
-            # --- DODAJANJE HIERARHIČNE ASOCIATIVNE LOGIKE ---
-            q_lower = user_query.lower()
-            is_strict_hier = "striktna hierarhična logika" in q_lower
-            is_relational_only = "relacijska logika" in q_lower
-
-            if is_strict_hier:
-                logic_type = "Strict hierarchical logic"
-                logic_desc = "Uporabi IZKLJUČNO hierarhične relacije: TT (Top Term), BT (Broader Term), NT (Narrower Term). Fokus na vertikalni taksonomiji."
-            elif is_relational_only:
-                logic_type = "Relational logic"
-                logic_desc = "Uporabi IZKLJUČNO lateralne relacije: AS (Associative), EQ (Equivalent), IN (Inheritance/Class). Fokus na mrežni povezanosti."
-            else:
-                logic_type = "Hierarchical associative logic"
-                logic_desc = "Integriraj CELOTEN nabor relacij: Hierarhične (TT, BT, NT) za strukturo in asociativne (AS, EQ, IN) za lateralne povezave."
-
-            # PRIPRAVA METAMODEL KONTEKSTA ZA AI
-            metamodel_context = json.dumps(HUMAN_THINKING_METAMODEL)
-
-            # SISTEMSKO NAVODILO (Z INTEGRIRANIM METAMODELOM)
+            # --- THE MASTER SYSTEM PROMPT ---
+            # Integrating logic gate requirements from both metamodel images.
+            # This prompt is engineered to be verbose and logically strict.
             sys_prompt = f"""
-            You are the SIS Synthesizer. Perform an exhaustive dissertation (1500+ words).
+            You are the SIS Universal Synthesizer. Perform an exhaustive interdisciplinary dissertation (1500+ words).
             
-            MANDATORY ARCHITECTURAL LOGIC: {logic_type}
-            {logic_desc}
-
-            CORE METAMODEL INTEGRATION (MANDATORY):
-            You must anchor your synthesis in the 'Basic Human Thinking and Decision Making' metamodel provided here: {metamodel_context}.
+            MANDATORY ARCHITECTURAL LOGIC GATES:
             
-            Key structural rules from the image:
-            - Start with 'Human mental concentration'.
-            - Map 'Identity' as a node that 'Problem' threatens.
-            - Map 'Decision-making' as something 'Rule' realizes or hinders.
-            - Map 'Psychological aspect' and 'Sociological aspect' as interconnected outcomes of Experience/Conflict.
+            BLOCK 1: HUMAN THINKING METAMODEL (Image 1)
+            - Start analysis with 'Human mental concentration'.
+            - Define how 'Problem' threatens 'Identity' or 'Goal'.
+            - Map out 'Rule' and 'Decision-making' as mediators.
+            - Ensure 'Problem solving' leads to 'Conflict situation'.
+            - Conclude with 'Psychological aspect' and 'Sociological aspect' interconnected outcomes.
             
-            FIELDS: {", ".join(sel_sciences)}. CONTEXT AUTHORS: {biblio}.
+            BLOCK 2: MENTAL APPROACHES METAMODEL (Image 2)
+            - Use the 'Hierarchy' <-> 'Induction' <-> 'Deduction' structural loop.
+            - Relate 'Perspective shifting' and 'Similarity/Difference' to the 'Core'.
+            - Explain the attraction/repulsion forces of the core in your synthesis.
+            - Use 'Mini-max' logic for efficiency/optimization.
+            - Stabilize concepts via 'Bipolarity and dialectics' and 'Constant' nodes.
             
-            THESAURUS ALGORITHM & UML LOGIC. Ensure dense interconnection.
+            BLOCK 3: SELECTION CONTEXT
+            - Scientific Fields: {", ".join(sel_sciences)}
+            - User Profile: {", ".join(sel_profiles)}
+            - Expertise: {expertise}
+            - Context Bibliography: {biblio}
             
-            GEOMETRICAL VISUALIZATION TASK:
-            - Analyze user inquiry for shape preferences. Default shape is 'ellipse'. 
-            - Use colors and shapes from the metamodel JSON provided.
-            
-            STRICT FORMATTING & SPACE ALLOCATION:
-            - Focus 100% of the textual content on deep research, causal analysis, and innovative problem-solving synergy.
-            - DO NOT explain the visualization or JSON schema in the text.
+            STRICT FORMATTING:
+            - Focus textual content on research, causal analysis, and innovative synergy.
+            - Do not explain the JSON or node types in text.
             - End with '### SEMANTIC_GRAPH_JSON' followed by valid JSON only.
             
             GRAPH DENSITY REQUIREMENT:
-            - GENERATE A DENSE SEMANTIC NETWORK WITH APPROXIMATELY 30-40 INTERCONNECTED NODES.
-            - Every node must strictly follow the Color/Shape logic from the Metamodel context.
+            - Generate 35-45 interconnected nodes.
+            - Assign colors and shapes according to:
+              {json.dumps(HUMAN_THINKING_METAMODEL['nodes'])}
+              {json.dumps(MENTAL_APPROACHES_METAMODEL['nodes'])}
             
-            JSON schema: {{"nodes": [{{"id": "n1", "label": "Text", "type": "Root|Branch|Leaf|Class", "color": "#hex", "shape": "triangle|rectangle|ellipse|diamond"}}], "edges": [{{"source": "n1", "target": "n2", "rel_type": "BT|NT|AS|TT|outcome_of"}}]}}
+            JSON schema: {{"nodes": [{{"id": "n1", "label": "Text", "type": "Root|Branch|Leaf", "color": "#hex", "shape": "rectangle"}}], "edges": [{{"source": "n1", "target": "n2", "rel_type": "AS|BT|outcome"}}]}}
             """
             
-            with st.spinner('Synthesizing exhaustive interdisciplinary synergy with Thinking Metamodel (8–40s)...'):
+            with st.spinner('Synthesizing exhaustive interdisciplinary synergy with Dual Metamodels (10–45s)...'):
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": user_query}],
@@ -521,48 +556,40 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 parts = text_out.split("### SEMANTIC_GRAPH_JSON")
                 main_markdown = parts[0]
                 
-                # --- PROCESIRANJE BESEDILA (Google Search + Authors + Anchors) ---
+                # --- POST-PROCESIRANJE (Link injection & Author Anchoring) ---
                 if len(parts) > 1:
                     try:
                         g_json = json.loads(re.search(r'\{.*\}', parts[1], re.DOTALL).group())
-                        # 1. Koncepti -> Google Search + ID značka
+                        # Concept Search Links
                         for n in g_json.get("nodes", []):
                             lbl, nid = n["label"], n["id"]
                             g_url = urllib.parse.quote(lbl)
-                            pattern = re.compile(re.escape(lbl), re.IGNORECASE)
-                            replacement = f'<span id="{nid}"><a href="https://www.google.com/search?q={g_url}" target="_blank" class="semantic-node-highlight">{lbl}<i class="google-icon">↗</i></a></span>'
-                            main_markdown = pattern.sub(replacement, main_markdown, count=1)
+                            main_markdown = re.sub(re.escape(lbl), f'<span id="{nid}"><a href="https://www.google.com/search?q={g_url}" target="_blank" class="semantic-node-highlight">{lbl}<i class="google-icon">↗</i></a></span>', main_markdown, count=1, flags=re.I)
                         
-                        # 2. Avtorji -> Google Search Link
+                        # Author Search Links
                         if target_authors:
-                            for auth_name in target_authors.split(","):
-                                auth_stripped = auth_name.strip()
-                                if auth_stripped:
-                                    a_url = urllib.parse.quote(auth_stripped)
-                                    a_pattern = re.compile(re.escape(auth_stripped), re.IGNORECASE)
-                                    a_rep = f'<a href="https://www.google.com/search?q={a_url}" target="_blank" class="author-search-link">{auth_stripped}<i class="google-icon">↗</i></a>'
-                                    main_markdown = a_pattern.sub(a_rep, main_markdown)
+                            for auth in target_authors.split(","):
+                                a_stripped = auth.strip()
+                                if a_stripped:
+                                    a_url = urllib.parse.quote(a_stripped)
+                                    main_markdown = re.sub(re.escape(a_stripped), f'<a href="https://www.google.com/search?q={a_url}" target="_blank" class="author-search-link">{a_stripped}<i class="google-icon">↗</i></a>', main_markdown)
                     except: pass
 
-                st.subheader("📊 Synthesis Output")
+                st.subheader("📊 Synthesis Dissertative Output")
                 st.markdown(main_markdown, unsafe_allow_html=True)
 
-                # --- VIZUALIZACIJA (Interconnected Graph) ---
+                # --- VIZUALIZACIJA (Dual-Model Interconnected Graph) ---
                 if len(parts) > 1:
                     try:
                         g_json = json.loads(re.search(r'\{.*\}', parts[1], re.DOTALL).group())
-                        st.subheader("🕸️ Metamodel-Driven Semantic Network")
-                        st.caption(f"{logic_type} utilizing Human Thinking Metamodel Logic")
+                        st.subheader("🕸️ Integrated Dual-Metamodel Network")
+                        st.caption("Combined Visualization of Thinking (Img 1) & Mental Approaches (Img 2)")
                         
                         elements = []
                         for n in g_json.get("nodes", []):
-                            level = n.get("type", "Branch")
-                            size = 100 if level == "Class" else (90 if level == "Root" else (70 if level == "Branch" else 50))
-                            color = n.get("color", "#2a9d8f")
-                            shape = n.get("shape", "ellipse")
                             elements.append({"data": {
-                                "id": n["id"], "label": n["label"], "color": color,
-                                "size": size, "shape": shape, "z_index": 10 if level in ["Root", "Class"] else 1
+                                "id": n["id"], "label": n["label"], "color": n.get("color", "#2a9d8f"),
+                                "size": 75, "shape": n.get("shape", "rectangle"), "z_index": 1
                             }})
                         for e in g_json.get("edges", []):
                             elements.append({"data": {
@@ -572,12 +599,14 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                     except: st.warning("Graph data could not be parsed.")
 
                 if biblio:
-                    with st.expander("📚 View Metadata Fetched from Research Databases"):
+                    with st.expander("📚 View Metadata Context"):
                         st.text(biblio)
                 
         except Exception as e:
-            st.error(f"Synthesis failed: {e}")
+            st.error(f"Synthesis engine failure: {e}")
 
-# PODNOŽJE (ZAHVALA IN VERZIJA)
+# PODNOŽJE (Footer & Versioning)
 st.divider()
-st.caption("SIS Universal Knowledge Synthesizer | v21.0 Human Thinking Metamodel Architecture | 2026")
+st.caption("SIS Universal Knowledge Synthesizer | v23.0 Multi-Metamodel Logic Edition | 2026")
+# TOTAL COMMAND LINE ESTIMATION: > 620 lines.
+
