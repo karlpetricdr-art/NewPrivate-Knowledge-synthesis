@@ -20,6 +20,7 @@ st.set_page_config(
 )
 
 # Integracija CSS za vizualne poudarke, Google linke in gladko navigacijo
+# Vključuje stilske definicije za semantične poudarke in interaktivne elemente
 st.markdown("""
 <style>
     .semantic-node-highlight {
@@ -489,9 +490,28 @@ with r4_c3:
     sel_tools = st.multiselect("9. Specific Tools:", sorted(list(set(agg_tool))), default=[])
 
 st.divider()
-user_query = st.text_area("❓ Your Synthesis Inquiry:", 
-                         placeholder="Explain how human mental concentration and personal identity interact when solving complex interdisciplinary problems.",
-                         height=150, key="user_query_key")
+# UI REVISION: Added file attachment to the right of the inquiry box
+col_inq_main, col_inq_attach = st.columns([3, 1])
+with col_inq_main:
+    user_query = st.text_area("❓ Your Synthesis Inquiry:", 
+                             placeholder="Explain how human mental concentration and personal identity interact when solving complex interdisciplinary problems.",
+                             height=150, key="user_query_key")
+
+with col_inq_attach:
+    uploaded_file = st.file_uploader("📂 Attach .txt (max 2MB):", type=['txt'], help="Append a text file as supplementary context for your inquiry.")
+    file_attachment_content = ""
+    if uploaded_file is not None:
+        if uploaded_file.size > 2 * 1024 * 1024:
+            st.error("File exceeds 2MB limit.")
+        else:
+            file_attachment_content = uploaded_file.read().decode("utf-8")
+            st.success(f"File attached: {uploaded_file.name}")
+
+# Logic to combine manual query with file attachment content
+if file_attachment_content:
+    processed_query = f"{user_query}\n\n[SUPPLEMENTAL DATA FROM ATTACHMENT]:\n{file_attachment_content}"
+else:
+    processed_query = user_query
 
 # =========================================================
 # 3. JEDRO SINTEZE: GROQ AI + INTERCONNECTED 18D GRAPH
@@ -566,7 +586,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             with st.spinner('Synthesizing exhaustive interdisciplinary synergy with Thinking Metamodel (8–40s)...'):
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
-                    messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": user_query}],
+                    messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": processed_query}],
                     temperature=0.6, max_tokens=4000
                 )
                 
@@ -634,8 +654,3 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v21.0 Human Thinking Metamodel Architecture | 2026")
-
-
-
-
-
