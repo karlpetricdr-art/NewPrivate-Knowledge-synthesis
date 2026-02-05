@@ -20,7 +20,6 @@ st.set_page_config(
 )
 
 # Integracija CSS za vizualne poudarke, Google linke in gladko navigacijo
-# Vključuje stilske definicije za semantične poudarke in interaktivne elemente
 st.markdown("""
 <style>
     .semantic-node-highlight {
@@ -241,8 +240,6 @@ def fetch_author_bibliographies(author_input):
 # =========================================================================
 # 1. POPOLNA ONTOLOGIJA Z IMPLEMENTACIJO METAMODELA (Basic Human Thinking)
 # =========================================================================
-# Vsebuje definicije vozlišč, barv in logičnih povezav iz priložene slike.
-
 HUMAN_THINKING_METAMODEL = {
     "nodes": {
         "Human mental concentration": {"color": "#A6A6A6", "shape": "rectangle"},
@@ -298,8 +295,57 @@ HUMAN_THINKING_METAMODEL = {
     ]
 }
 
+# =========================================================================
+# NEW: MENTAL APPROACHES ONTOLOGY (Diagram Derived Logic)
+# =========================================================================
+MENTAL_APPROACHES_ONTOLOGY = {
+    "nodes": {
+        "Perspective shifting": {"color": "#00FF00", "shape": "rectangle"},
+        "Similarity and difference": {"color": "#FFFF00", "shape": "rectangle"},
+        "Core": {"color": "#FFC000", "shape": "rectangle"},
+        "Attraction": {"color": "#F2A6A2", "shape": "rectangle"},
+        "Repulsion": {"color": "#D9D9D9", "shape": "rectangle"},
+        "Condensation": {"color": "#CCC0DA", "shape": "rectangle"},
+        "Framework and foundation": {"color": "#F8CBAD", "shape": "rectangle"},
+        "Bipolarity and dialectics": {"color": "#DDEBF7", "shape": "rectangle"},
+        "Constant": {"color": "#E1C1D1", "shape": "rectangle"},
+        "Associativity": {"color": "#E1C1D1", "shape": "rectangle"},
+        "Induction": {"color": "#B4C6E7", "shape": "rectangle"},
+        "Whole and part": {"color": "#00FF00", "shape": "rectangle"},
+        "Mini-max": {"color": "#00FF00", "shape": "rectangle"},
+        "Addition and composition": {"color": "#FF00FF", "shape": "rectangle"},
+        "Hierarchy": {"color": "#C6EFCE", "shape": "rectangle"},
+        "Balance": {"color": "#00B0F0", "shape": "rectangle"},
+        "Deduction": {"color": "#92D050", "shape": "rectangle"},
+        "Abstraction and elimination": {"color": "#00B0F0", "shape": "rectangle"},
+        "Pleasure and displeasure": {"color": "#00FF00", "shape": "rectangle"},
+        "Openness and closedness": {"color": "#FFC000", "shape": "rectangle"}
+    },
+    "relations": [
+        ("Perspective shifting", "Similarity and difference", "leads to"),
+        ("Core", "Similarity and difference", "influences"),
+        ("Core", "Attraction", "has dynamic"),
+        ("Core", "Repulsion", "has dynamic"),
+        ("Repulsion", "Bipolarity and dialectics", "leads to"),
+        ("Framework and foundation", "Bipolarity and dialectics", "mutually interacts"),
+        ("Bipolarity and dialectics", "Constant", "stabilizes"),
+        ("Constant", "Associativity", "allows"),
+        ("Induction", "Whole and part", "bidirectional link"),
+        ("Induction", "Hierarchy", "structures"),
+        ("Whole and part", "Mini-max", "optimizes"),
+        ("Mini-max", "Addition and composition", "results in"),
+        ("Deduction", "Hierarchy", "defines taxonomy"),
+        ("Deduction", "Abstraction and elimination", "processes through"),
+        ("Deduction", "Pleasure and displeasure", "evaluates through"),
+        ("Hierarchy", "Balance", "maintains"),
+        ("Balance", "Addition and composition", "stabilizes"),
+        ("Balance", "Abstraction and elimination", "reconciles"),
+        ("Openness and closedness", "Pleasure and displeasure", "modulates response")
+    ]
+}
+
 KNOWLEDGE_BASE = {
-    "mental approaches": ["Perspective shifting", "Induction", "Deduction", "Hierarchy", "Mini-max", "Whole and part", "Addition and composition", "Balance", "Abstraction and elimination", "Openness and closedness", "Bipolarity and dialectics", "Framework and foundation", "Pleasure and displeasure", "Similarity and difference", "Core (Attraction & Repulsion)", "Condensation", "Constant", "Associativity"],
+    "mental approaches": list(MENTAL_APPROACHES_ONTOLOGY["nodes"].keys()),
     "User profiles": {"Adventurers": {"description": "Explorers of hidden patterns."}, "Applicators": {"description": "Efficiency focused."}, "Know-it-alls": {"description": "Systemic clarity."}, "Observers": {"description": "System monitors."}},
     "Scientific paradigms": {"Empiricism": "Sensory experience.", "Rationalism": "Deductive logic.", "Constructivism": "Social build.", "Positivism": "Strict facts.", "Pragmatism": "Practical utility."},
     "Structural models": {"Causal Connections": "Causality.", "Principles & Relations": "Fundamental laws.", "Episodes & Sequences": "Time-flow.", "Facts & Characteristics": "Raw data.", "Generalizations": "Frameworks.", "Glossary": "Definitions.", "Concepts": "Abstract constructs."},
@@ -474,6 +520,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
             # PRIPRAVA METAMODEL KONTEKSTA ZA AI
             metamodel_context = json.dumps(HUMAN_THINKING_METAMODEL)
+            mental_approaches_context = json.dumps(MENTAL_APPROACHES_ONTOLOGY)
 
             # SISTEMSKO NAVODILO (Z INTEGRIRANIM METAMODELOM)
             sys_prompt = f"""
@@ -483,13 +530,17 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             {logic_desc}
 
             CORE METAMODEL INTEGRATION (MANDATORY):
-            You must anchor your synthesis in the 'Basic Human Thinking and Decision Making' metamodel provided here: {metamodel_context}.
+            You must anchor your synthesis in the 'Basic Human Thinking and Decision Making' metamodel: {metamodel_context}.
             
-            Key structural rules from the image:
-            - Start with 'Human mental concentration'.
-            - Map 'Identity' as a node that 'Problem' threatens.
-            - Map 'Decision-making' as something 'Rule' realizes or hinders.
-            - Map 'Psychological aspect' and 'Sociological aspect' as interconnected outcomes of Experience/Conflict.
+            MENTAL APPROACHES DIAGRAM LOGIC (MANDATORY):
+            Incorporate the directional logic and inter-node connections defined here: {mental_approaches_context}.
+            Key structural paths to observe from the image:
+            - 'Core' leads to 'Similarity and difference', 'Attraction', and 'Repulsion'.
+            - 'Repulsion' triggers 'Bipolarity and dialectics'.
+            - 'Induction' and 'Whole and part' are mutually dependent.
+            - 'Whole and part' flows into 'Mini-max'.
+            - 'Hierarchy' flows into 'Balance' which reconciliation 'Addition and composition' and 'Abstraction and elimination'.
+            - 'Deduction' defines 'Hierarchy' and evaluations through 'Pleasure and displeasure'.
             
             FIELDS: {", ".join(sel_sciences)}. CONTEXT AUTHORS: {biblio}.
             
@@ -497,16 +548,16 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             
             GEOMETRICAL VISUALIZATION TASK:
             - Analyze user inquiry for shape preferences. Default shape is 'ellipse'. 
-            - Use colors and shapes from the metamodel JSON provided.
+            - Use colors and shapes from BOTH the Metamodel and Mental Approaches JSON provided.
             
             STRICT FORMATTING & SPACE ALLOCATION:
-            - Focus 100% of the textual content on deep research, causal analysis, and innovative problem-solving synergy.
-            - DO NOT explain the visualization or JSON schema in the text.
+            - Focus 100% of the textual content on deep research and interdisciplinary synergy.
+            - DO NOT explain the visualization in the text.
             - End with '### SEMANTIC_GRAPH_JSON' followed by valid JSON only.
             
             GRAPH DENSITY REQUIREMENT:
             - GENERATE A DENSE SEMANTIC NETWORK WITH APPROXIMATELY 30-40 INTERCONNECTED NODES.
-            - Every node must strictly follow the Color/Shape logic from the Metamodel context.
+            - Every node must strictly follow the Color/Shape logic from the contexts.
             
             JSON schema: {{"nodes": [{{"id": "n1", "label": "Text", "type": "Root|Branch|Leaf|Class", "color": "#hex", "shape": "triangle|rectangle|ellipse|diamond"}}], "edges": [{{"source": "n1", "target": "n2", "rel_type": "BT|NT|AS|TT|outcome_of"}}]}}
             """
@@ -582,6 +633,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v21.0 Human Thinking Metamodel Architecture | 2026")
+
 
 
 
