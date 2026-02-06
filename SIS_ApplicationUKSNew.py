@@ -390,7 +390,7 @@ with st.sidebar:
     
     api_key = st.text_input(
         "Groq API Key:", 
-        type="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", 
+        type="passsword", 
         help="Security: Your key is held only in volatile RAM and is never stored on our servers."
     )
     
@@ -654,4 +654,5 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v21.0 Human Thinking Metamodel Architecture | 2026")
+
 
