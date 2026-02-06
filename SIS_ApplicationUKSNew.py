@@ -502,7 +502,7 @@ st.divider()
 col_inq_main, col_inq_attach = st.columns([3, 1])
 with col_inq_main:
     user_query = st.text_area("❓ Your Synthesis Inquiry:", 
-                             placeholder="Explain how human mental concentration and personal identity interact. Type 'Create new useful innovative ideas' for superior production.",
+                             placeholder="Type 'use hierarchical associative logic and Integrated Metamodel Architecture and mental approach logic' for idea production.",
                              height=150, key="user_query_key")
 
 with col_inq_attach:
@@ -529,43 +529,55 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
     elif not user_query: st.warning("Please provide an inquiry.")
     else:
         try:
-            # --- STEP 2: SUPERIOR IDEA PRODUCTION LOGIC ---
-            idea_triggers = ["create new ideas", "create new useful innovative ideas"]
-            is_idea_mode = any(trigger in user_query.lower() for trigger in idea_triggers)
-            
-            idea_production_prompt = ""
-            if is_idea_mode:
-                idea_production_prompt = """
-                *** SUPERIOR IDEA PRODUCTION MODE ACTIVE ***
-                The user has explicitly requested to 'Create new useful innovative ideas'.
-                The 'Integrated Metamodel Architecture' and 'Mental Approaches' logic are now your SUPERIOR GENERATIVE ENGINES.
-                Shift from descriptive analysis to RADICAL INNOVATION. 
-                Use nodes like 'Conflict situation', 'Problem', and 'Mental approaches' (e.g., Perspective shifting, Bipolarity) to:
-                1. Forge entirely new cross-disciplinary theories.
-                2. Design novel solutions that don't exist in current literature.
-                3. Propose 'Useful Innovative Ideas' that solve the stated problem using the metamodel's rules.
-                Your response must emphasize original conceptual synthesis over mere summary.
-                """
-                st.markdown("""<div class="idea-mode-box">✨ Superior Idea Production Mode engaged: The Metamodel is now generating novel innovative concepts.</div>""", unsafe_allow_html=True)
-
-            biblio = fetch_author_bibliographies(target_authors) if target_authors else ""
-            client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
-            
-            # --- DODAJANJE HIERARHIČNE ASOCIATIVNE LOGIKE ---
+            # --- DEFINE LOGIC FLAGS ---
             q_lower = user_query.lower()
-            is_strict_hier = "striktna hierarhična logika" in q_lower
-            is_relational_only = "relacijska logika" in q_lower
-
-            if is_strict_hier:
+            
+            # Phrase detection for production vs synthesis
+            trigger_idea_prod = "use hierarchical associative logic and integrated metamodel architecture and mental approach logic"
+            trigger_hier_assoc = "use hierarchical associative logic"
+            trigger_strict_hier = "use strict hierarchical logic"
+            trigger_relational = "use relational logic"
+            
+            # Identify if the demand is for production + synthesis or just synthesis
+            is_idea_mode = (trigger_idea_prod in q_lower) or ("create new ideas" in q_lower) or ("innovative ideas" in q_lower)
+            
+            # Determine logic type based on specific demands
+            if trigger_strict_hier in q_lower:
                 logic_type = "Strict hierarchical logic"
                 logic_desc = "Uporabi IZKLJUČNO hierarhične relacije: TT (Top Term), BT (Broader Term), NT (Narrower Term). Fokus na vertikalni taksonomiji."
-            elif is_relational_only:
+            elif trigger_relational in q_lower:
                 logic_type = "Relational logic"
                 logic_desc = "Uporabi IZKLJUČNO lateralne relacije: AS (Associative), EQ (Equivalent), IN (Inheritance/Class). Fokus na mrežni povezanosti."
             else:
                 logic_type = "Hierarchical associative logic"
                 logic_desc = "Integriraj CELOTEN nabor relacij: Hierarhične (TT, BT, NT) za strukturo in asociativne (AS, EQ, IN) za lateralne povezave."
 
+            # --- STEP 2: SUPERIOR IDEA PRODUCTION LOGIC ---
+            idea_production_prompt = ""
+            if is_idea_mode:
+                idea_production_prompt = """
+                *** SUPERIOR IDEA PRODUCTION MODE ACTIVE ***
+                The user demand combines logic with 'Integrated Metamodel Architecture' and 'mental approach logic'.
+                You are now expected to PERFORM KNOWLEDGE SYNTHESIS AND PRODUCE NEW USEFUL INNOVATIVE IDEAS.
+                Shift from descriptive analysis to RADICAL INNOVATION. 
+                Use nodes like 'Conflict situation', 'Problem', and 'Mental approaches' (e.g., Perspective shifting, Bipolarity) to:
+                1. Forge entirely new cross-disciplinary theories.
+                2. Design novel solutions that don't exist in current literature.
+                3. Propose 'Useful Innovative Ideas' that solve the stated problem using the metamodel's rules.
+                Your response must emphasize original conceptual synthesis AND generative creativity.
+                """
+                st.markdown("""<div class="idea-mode-box">✨ Production & Synthesis Mode engaged: Generating novel innovative concepts using Metamodel Logic.</div>""", unsafe_allow_html=True)
+            else:
+                idea_production_prompt = """
+                *** KNOWLEDGE SYNTHESIS MODE ***
+                The user is looking for knowledge synthesis and structured organization.
+                Focus on structured analysis, taxonomy, and interconnectedness. 
+                DO NOT focus on producing hypothetical innovative ideas; focus on existing knowledge structures and their relationships.
+                """
+
+            biblio = fetch_author_bibliographies(target_authors) if target_authors else ""
+            client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
+            
             # PRIPRAVA METAMODEL KONTEKSTA ZA AI
             metamodel_context = json.dumps(HUMAN_THINKING_METAMODEL)
             mental_approaches_context = json.dumps(MENTAL_APPROACHES_ONTOLOGY)
@@ -616,7 +628,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": processed_query}],
-                    temperature=0.75 if is_idea_mode else 0.55, 
+                    temperature=0.75 if is_idea_mode else 0.45, 
                     max_tokens=4000
                 )
                 
@@ -683,7 +695,8 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
-st.caption("SIS Universal Knowledge Synthesizer | v21.1 Superior Idea Production Mode | 2026")
+st.caption("SIS Universal Knowledge Synthesizer | v21.2 Synthesis vs Idea Production Engine | 2026")
+
 
 
 
