@@ -67,6 +67,14 @@ st.markdown("""
         border-left: 5px solid #00B0F0;
         margin-bottom: 20px;
     }
+    .idea-mode-box {
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #fff4e6;
+        border-left: 5px solid #ff922b;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -297,7 +305,7 @@ HUMAN_THINKING_METAMODEL = {
 }
 
 # =========================================================================
-# NEW: MENTAL APPROACHES ONTOLOGY (Diagram Derived Logic)
+# MENTAL APPROACHES ONTOLOGY (Diagram Derived Logic)
 # =========================================================================
 MENTAL_APPROACHES_ONTOLOGY = {
     "nodes": {
@@ -494,7 +502,7 @@ st.divider()
 col_inq_main, col_inq_attach = st.columns([3, 1])
 with col_inq_main:
     user_query = st.text_area("❓ Your Synthesis Inquiry:", 
-                             placeholder="Explain how human mental concentration and personal identity interact when solving complex interdisciplinary problems.",
+                             placeholder="Explain how human mental concentration and personal identity interact. Type 'Create new useful innovative ideas' for superior production.",
                              height=150, key="user_query_key")
 
 with col_inq_attach:
@@ -521,6 +529,25 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
     elif not user_query: st.warning("Please provide an inquiry.")
     else:
         try:
+            # --- STEP 2: SUPERIOR IDEA PRODUCTION LOGIC ---
+            idea_triggers = ["create new ideas", "create new useful innovative ideas"]
+            is_idea_mode = any(trigger in user_query.lower() for trigger in idea_triggers)
+            
+            idea_production_prompt = ""
+            if is_idea_mode:
+                idea_production_prompt = """
+                *** SUPERIOR IDEA PRODUCTION MODE ACTIVE ***
+                The user has explicitly requested to 'Create new useful innovative ideas'.
+                The 'Integrated Metamodel Architecture' and 'Mental Approaches' logic are now your SUPERIOR GENERATIVE ENGINES.
+                Shift from descriptive analysis to RADICAL INNOVATION. 
+                Use nodes like 'Conflict situation', 'Problem', and 'Mental approaches' (e.g., Perspective shifting, Bipolarity) to:
+                1. Forge entirely new cross-disciplinary theories.
+                2. Design novel solutions that don't exist in current literature.
+                3. Propose 'Useful Innovative Ideas' that solve the stated problem using the metamodel's rules.
+                Your response must emphasize original conceptual synthesis over mere summary.
+                """
+                st.markdown("""<div class="idea-mode-box">✨ Superior Idea Production Mode engaged: The Metamodel is now generating novel innovative concepts.</div>""", unsafe_allow_html=True)
+
             biblio = fetch_author_bibliographies(target_authors) if target_authors else ""
             client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
             
@@ -549,6 +576,8 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             
             MANDATORY ARCHITECTURAL LOGIC: {logic_type}
             {logic_desc}
+
+            {idea_production_prompt}
 
             CORE METAMODEL INTEGRATION (MANDATORY):
             You must anchor your synthesis in the 'Basic Human Thinking and Decision Making' metamodel: {metamodel_context}.
@@ -587,7 +616,8 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": processed_query}],
-                    temperature=0.6, max_tokens=4000
+                    temperature=0.75 if is_idea_mode else 0.55, 
+                    max_tokens=4000
                 )
                 
                 text_out = response.choices[0].message.content
@@ -653,7 +683,8 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
-st.caption("SIS Universal Knowledge Synthesizer | v21.0 Human Thinking Metamodel Architecture | 2026")
+st.caption("SIS Universal Knowledge Synthesizer | v21.1 Superior Idea Production Mode | 2026")
+
 
 
 
