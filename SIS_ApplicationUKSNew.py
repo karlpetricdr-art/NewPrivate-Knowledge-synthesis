@@ -502,7 +502,7 @@ st.divider()
 col_inq_main, col_inq_attach = st.columns([3, 1])
 with col_inq_main:
     user_query = st.text_area("❓ Your Synthesis Inquiry:", 
-                             placeholder="Type 'use hierarchical associative logic and Integrated Metamodel Architecture and mental approach logic' for idea production.",
+                             placeholder="Type 'create useful ideas' to involve the Metamodel and Mental Approach Logic.",
                              height=150, key="user_query_key")
 
 with col_inq_attach:
@@ -556,38 +556,52 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             # --- STEP 2: SUPERIOR IDEA PRODUCTION LOGIC ---
             idea_production_prompt = ""
             metamodel_instruction = ""
+            mental_approaches_instruction = ""
             
             if is_idea_mode:
-                # ONLY involve Integrated Metamodel Architecture when producing ideas
+                # ONLY involve Integrated Metamodel Architecture AND Mental Approach Logic when explicitly producing ideas
                 metamodel_instruction = f"CORE METAMODEL INTEGRATION (MANDATORY): {json.dumps(HUMAN_THINKING_METAMODEL)}"
+                
+                # PRIPRAVA MENTAL APPROACHES KONTEKSTA
+                mental_approaches_context = json.dumps(MENTAL_APPROACHES_ONTOLOGY)
+                mental_approaches_instruction = f"""
+                MENTAL APPROACHES DIAGRAM LOGIC (MANDATORY):
+                Incorporate the directional logic and inter-node connections defined here: {mental_approaches_context}.
+                Key structural paths to observe from the image:
+                - 'Core' leads to 'Similarity and difference', 'Attraction', and 'Repulsion'.
+                - 'Repulsion' triggers 'Bipolarity and dialectics'.
+                - 'Induction' and 'Whole and part' are mutually dependent.
+                - 'Whole and part' flows into 'Mini-max'.
+                - 'Hierarchy' flows into 'Balance' which reconciliation 'Addition and composition' and 'Abstraction and elimination'.
+                - 'Deduction' defines 'Hierarchy' and evaluations through 'Pleasure and displeasure'.
+                """
+                
                 idea_production_prompt = """
                 *** SUPERIOR IDEA PRODUCTION MODE ACTIVE ***
-                The user explicitly commanded 'Create useful ideas' or combined logic with Metamodel Architecture.
+                The user explicitly commanded 'Create useful ideas' or combined logic with Metamodel/Mental frameworks.
                 You are now expected to PERFORM KNOWLEDGE SYNTHESIS AND PRODUCE NEW USEFUL INNOVATIVE IDEAS.
                 Shift from descriptive analysis to RADICAL INNOVATION. 
                 Use nodes like 'Conflict situation', 'Problem', and 'Mental approaches' (e.g., Perspective shifting, Bipolarity) to:
                 1. Forge entirely new cross-disciplinary theories.
                 2. Design novel solutions that don't exist in current literature.
-                3. Propose 'Useful Innovative Ideas' that solve the stated problem using the metamodel's rules.
+                3. Propose 'Useful Innovative Ideas' that solve the stated problem using the rules provided.
                 Your response must emphasize original conceptual synthesis AND generative creativity.
                 """
-                st.markdown("""<div class="idea-mode-box">✨ Production & Synthesis Mode engaged: Generating novel innovative concepts using Metamodel Logic.</div>""", unsafe_allow_html=True)
+                st.markdown("""<div class="idea-mode-box">✨ Production & Synthesis Mode engaged: Generating novel innovative concepts using Metamodel and Mental Logic.</div>""", unsafe_allow_html=True)
             else:
-                # STANDALONE Knowledge Synthesis (No Thinking Metamodel involved)
+                # STANDALONE Knowledge Synthesis (No Thinking Metamodel or Mental Approach logic involved)
                 idea_production_prompt = """
                 *** KNOWLEDGE SYNTHESIS MODE ***
                 The user is looking for knowledge synthesis and structured organization.
                 Focus on structured analysis, taxonomy, and interconnectedness within the provided science fields. 
                 DO NOT focus on producing hypothetical innovative ideas. Focus strictly on existing knowledge structures and their relationships.
                 """
-                metamodel_instruction = "In this mode, do not use the 'Human Thinking' metamodel. Focus purely on the domain-specific science fields selected."
+                metamodel_instruction = "In this mode, do not use the 'Human Thinking' metamodel."
+                mental_approaches_instruction = "In this mode, do not use the 'Mental Approach' logic. Focus purely on the domain-specific science fields selected."
 
             biblio = fetch_author_bibliographies(target_authors) if target_authors else ""
             client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
             
-            # PRIPRAVA KONTEKSTA ZA AI
-            mental_approaches_context = json.dumps(MENTAL_APPROACHES_ONTOLOGY)
-
             # SISTEMSKO NAVODILO
             sys_prompt = f"""
             You are the SIS Synthesizer. Perform an exhaustive dissertation (1500+ words).
@@ -599,15 +613,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
             {metamodel_instruction}
             
-            MENTAL APPROACHES DIAGRAM LOGIC (MANDATORY):
-            Incorporate the directional logic and inter-node connections defined here: {mental_approaches_context}.
-            Key structural paths to observe from the image:
-            - 'Core' leads to 'Similarity and difference', 'Attraction', and 'Repulsion'.
-            - 'Repulsion' triggers 'Bipolarity and dialectics'.
-            - 'Induction' and 'Whole and part' are mutually dependent.
-            - 'Whole and part' flows into 'Mini-max'.
-            - 'Hierarchy' flows into 'Balance' which reconciliation 'Addition and composition' and 'Abstraction and elimination'.
-            - 'Deduction' defines 'Hierarchy' and evaluations through 'Pleasure and displeasure'.
+            {mental_approaches_instruction}
             
             FIELDS: {", ".join(sel_sciences)}. CONTEXT AUTHORS: {biblio}.
             
@@ -615,7 +621,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             
             GEOMETRICAL VISUALIZATION TASK:
             - Analyze user inquiry for shape preferences. Default shape is 'ellipse'. 
-            - Use colors and shapes from the contexts provided (Metamodel if idea mode, Mental Approaches always).
+            - Use colors and shapes from the contexts provided (Metamodel/Mental only if idea mode).
             
             STRICT FORMATTING & SPACE ALLOCATION:
             - Focus 100% of the textual content on deep research and interdisciplinary synergy.
@@ -701,6 +707,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v21.2 Synthesis vs Idea Production Engine | 2026")
+
 
 
 
