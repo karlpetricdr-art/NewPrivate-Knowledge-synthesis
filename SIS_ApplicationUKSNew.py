@@ -550,7 +550,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 logic_desc = "Uporabi IZKLJUČNO lateralne relacije: AS (Associative), EQ (Equivalent), IN (Inheritance/Class). Fokus na mrežni povezanosti."
             else:
                 logic_type = "Hierarchical associative logic"
-                logic_desc = "Integriraj CELOTEN nabor relacij: Hierarhične (TT, BT, NT) za strukturo in asociativne (AS, EQ, IN) za lateralne povezave."
+                logic_desc = "Uporabi CELOTEN nabor relacij: TT (Top Term), BT (Broader Term), NT (Narrower Term), RT (Related Term), AS (Associative), EQ (Equivalent) in IN (Inheritance/Instance)."
 
             # --- STEP 2: SUPERIOR IDEA PRODUCTION LOGIC ---
             idea_production_prompt = ""
@@ -696,6 +696,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v21.2 Synthesis vs Idea Production Engine | 2026")
+
 
 
 
