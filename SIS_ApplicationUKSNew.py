@@ -534,12 +534,13 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             
             # Phrase detection for production vs synthesis
             trigger_idea_prod = "use hierarchical associative logic and integrated metamodel architecture and mental approach logic"
+            trigger_create_useful = "create useful ideas"
             trigger_hier_assoc = "use hierarchical associative logic"
             trigger_strict_hier = "use strict hierarchical logic"
             trigger_relational = "use relational logic"
             
             # Identify if the demand is for production + synthesis or just synthesis
-            is_idea_mode = (trigger_idea_prod in q_lower) or ("create new ideas" in q_lower) or ("innovative ideas" in q_lower)
+            is_idea_mode = (trigger_idea_prod in q_lower) or (trigger_create_useful in q_lower) or ("innovative ideas" in q_lower)
             
             # Determine logic type based on specific demands
             if trigger_strict_hier in q_lower:
@@ -554,10 +555,14 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
             # --- STEP 2: SUPERIOR IDEA PRODUCTION LOGIC ---
             idea_production_prompt = ""
+            metamodel_instruction = ""
+            
             if is_idea_mode:
+                # ONLY involve Integrated Metamodel Architecture when producing ideas
+                metamodel_instruction = f"CORE METAMODEL INTEGRATION (MANDATORY): {json.dumps(HUMAN_THINKING_METAMODEL)}"
                 idea_production_prompt = """
                 *** SUPERIOR IDEA PRODUCTION MODE ACTIVE ***
-                The user demand combines logic with 'Integrated Metamodel Architecture' and 'mental approach logic'.
+                The user explicitly commanded 'Create useful ideas' or combined logic with Metamodel Architecture.
                 You are now expected to PERFORM KNOWLEDGE SYNTHESIS AND PRODUCE NEW USEFUL INNOVATIVE IDEAS.
                 Shift from descriptive analysis to RADICAL INNOVATION. 
                 Use nodes like 'Conflict situation', 'Problem', and 'Mental approaches' (e.g., Perspective shifting, Bipolarity) to:
@@ -568,21 +573,22 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 """
                 st.markdown("""<div class="idea-mode-box">✨ Production & Synthesis Mode engaged: Generating novel innovative concepts using Metamodel Logic.</div>""", unsafe_allow_html=True)
             else:
+                # STANDALONE Knowledge Synthesis (No Thinking Metamodel involved)
                 idea_production_prompt = """
                 *** KNOWLEDGE SYNTHESIS MODE ***
                 The user is looking for knowledge synthesis and structured organization.
-                Focus on structured analysis, taxonomy, and interconnectedness. 
-                DO NOT focus on producing hypothetical innovative ideas; focus on existing knowledge structures and their relationships.
+                Focus on structured analysis, taxonomy, and interconnectedness within the provided science fields. 
+                DO NOT focus on producing hypothetical innovative ideas. Focus strictly on existing knowledge structures and their relationships.
                 """
+                metamodel_instruction = "In this mode, do not use the 'Human Thinking' metamodel. Focus purely on the domain-specific science fields selected."
 
             biblio = fetch_author_bibliographies(target_authors) if target_authors else ""
             client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
             
-            # PRIPRAVA METAMODEL KONTEKSTA ZA AI
-            metamodel_context = json.dumps(HUMAN_THINKING_METAMODEL)
+            # PRIPRAVA KONTEKSTA ZA AI
             mental_approaches_context = json.dumps(MENTAL_APPROACHES_ONTOLOGY)
 
-            # SISTEMSKO NAVODILO (Z INTEGRIRANIM METAMODELOM)
+            # SISTEMSKO NAVODILO
             sys_prompt = f"""
             You are the SIS Synthesizer. Perform an exhaustive dissertation (1500+ words).
             
@@ -591,8 +597,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
             {idea_production_prompt}
 
-            CORE METAMODEL INTEGRATION (MANDATORY):
-            You must anchor your synthesis in the 'Basic Human Thinking and Decision Making' metamodel: {metamodel_context}.
+            {metamodel_instruction}
             
             MENTAL APPROACHES DIAGRAM LOGIC (MANDATORY):
             Incorporate the directional logic and inter-node connections defined here: {mental_approaches_context}.
@@ -610,7 +615,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             
             GEOMETRICAL VISUALIZATION TASK:
             - Analyze user inquiry for shape preferences. Default shape is 'ellipse'. 
-            - Use colors and shapes from BOTH the Metamodel and Mental Approaches JSON provided.
+            - Use colors and shapes from the contexts provided (Metamodel if idea mode, Mental Approaches always).
             
             STRICT FORMATTING & SPACE ALLOCATION:
             - Focus 100% of the textual content on deep research and interdisciplinary synergy.
@@ -624,7 +629,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             JSON schema: {{"nodes": [{{"id": "n1", "label": "Text", "type": "Root|Branch|Leaf|Class", "color": "#hex", "shape": "triangle|rectangle|ellipse|diamond"}}], "edges": [{{"source": "n1", "target": "n2", "rel_type": "BT|NT|AS|TT|outcome_of"}}]}}
             """
             
-            with st.spinner('Synthesizing exhaustive interdisciplinary synergy with Thinking Metamodel (8–40s)...'):
+            with st.spinner('Synthesizing exhaustive interdisciplinary synergy (8–40s)...'):
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": processed_query}],
@@ -696,6 +701,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v21.2 Synthesis vs Idea Production Engine | 2026")
+
 
 
 
