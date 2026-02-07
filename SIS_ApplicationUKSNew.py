@@ -361,7 +361,8 @@ KNOWLEDGE_BASE = {
     "Science fields": {
         "Physics": {"cat": "Natural", "methods": ["Modeling", "Simulation"], "tools": ["Accelerator", "Spectrometer"], "facets": ["Quantum", "Relativity"]},
         "Chemistry": {"cat": "Natural", "methods": ["Synthesis", "Spectroscopy"], "tools": ["NMR", "Chromatography"], "facets": ["Organic", "Molecular"]},
-        "Biology": {"cat": "Natural", "methods": ["Sequencing", "CRISPR"], "tools": ["Microscope", "Bio-Incubator"], "facets": ["Genetics", "Ecology"]},
+        "Biology": {"cat": "Natural", "methods": ["Sequencing", "CRISPR"], "tools": ["Microscope", "Bio-Incubator"], "facets": ["Genetics", "Population Dynamics"]},
+        "Ecology": {"cat": "Natural", "methods": ["Ecosystem Modeling", "Field Sampling", "Remote Sensing"], "tools": ["GIS Software", "Biosensors", "Satellite Imagery"], "facets": ["Biodiversity", "Sustainability", "Conservation Biology"]},
         "Neuroscience": {"cat": "Natural", "methods": ["Neuroimaging", "Electrophys"], "tools": ["fMRI", "EEG"], "facets": ["Plasticity", "Synaptic"]},
         "Psychology": {"cat": "Social", "methods": ["Double-Blind Trials", "Psychometrics"], "tools": ["fMRI", "Testing Kits"], "facets": ["Behavioral", "Cognitive"]},
         "Sociology": {"cat": "Social", "methods": ["Ethnography", "Surveys"], "tools": ["Data Analytics", "Archives"], "facets": ["Stratification", "Dynamics"]},
@@ -707,6 +708,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v21.2 Synthesis vs Idea Production Engine | 2026")
+
 
 
 
