@@ -65,6 +65,13 @@ st.markdown("""
         border-radius: 10px;
         background-color: #f8f9fa;
         border-left: 5px solid #00B0F0;
+        margin-bottom: 10px;
+    }
+    .mental-approach-box {
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #f0f7ff;
+        border-left: 5px solid #6366f1;
         margin-bottom: 20px;
     }
     .idea-mode-box {
@@ -247,8 +254,10 @@ def fetch_author_bibliographies(author_input):
     return comprehensive_biblio
 
 # =========================================================================
-# 1. POPOLNA ONTOLOGIJA Z IMPLEMENTACIJO METAMODELA (Basic Human Thinking)
+# 1. ARCHITECTURE DEFINITIONS (IMA vs MA)
 # =========================================================================
+
+# A. INTEGRATED METAMODEL ARCHITECTURE (IMA) + SPECIAL ADD-ON
 HUMAN_THINKING_METAMODEL = {
     "nodes": {
         "Human mental concentration": {"color": "#A6A6A6", "shape": "rectangle"},
@@ -268,6 +277,7 @@ HUMAN_THINKING_METAMODEL = {
         "Tool": {"color": "#00B050", "shape": "rectangle"},
         "Experience": {"color": "#00B050", "shape": "rectangle"},
         "Classification": {"color": "#CCC0DA", "shape": "rectangle"},
+        # --- THE SPECIAL ADD-ON: Sociopsychological Outcome Mapping ---
         "Psychological aspect": {"color": "#F8CBAD", "shape": "rectangle"},
         "Sociological aspect": {"color": "#00FFFF", "shape": "rectangle"}
     },
@@ -304,9 +314,7 @@ HUMAN_THINKING_METAMODEL = {
     ]
 }
 
-# =========================================================================
-# MENTAL APPROACHES ONTOLOGY (Diagram Derived Logic)
-# =========================================================================
+# B. MENTAL APPROACHES (MA) ONTOLOGY
 MENTAL_APPROACHES_ONTOLOGY = {
     "nodes": {
         "Perspective shifting": {"color": "#00FF00", "shape": "rectangle"},
@@ -445,16 +453,25 @@ with st.sidebar:
     st.link_button("🎓 Google Scholar", "https://scholar.google.com/", use_container_width=True)
 
 st.title("🧱 SIS Universal Knowledge Synthesizer")
-st.markdown("Advanced Multi-dimensional synthesis with **Basic Human Thinking Metamodel Integration**.")
+st.markdown("Advanced Multi-dimensional synthesis with **Separated Metamodel & Mental Approaches**.")
 
-# PRIKAZ METAMODELA KOT REFERENČNI OKVIR
-st.markdown("""
-<div class="metamodel-box">
-    <b>🧠 Integrated Metamodel Architecture:</b> 
-    The current session integrates nodes like <i>Concentration, Identity, Mission, Vision, Goal, Problem, </i> and outcomes like <i>Psychological & Sociological Aspects</i>. 
-    The logic follows exact relationships: <code>Problem threatens Identity</code>, <code>Rule realizes Goal</code>, <code>Conflict results in Sociological outcome</code>.
-</div>
-""", unsafe_allow_html=True)
+# PRIKAZ REFERENČNIH OKVIRJEV (Separated IMA+Add-on from MA)
+col_ref1, col_ref2 = st.columns(2)
+with col_ref1:
+    st.markdown("""
+    <div class="metamodel-box">
+        <b>🏛️ Integrated Metamodel Architecture (IMA) + Special Add-on:</b><br>
+        Focuses on structural reasoning nodes: <i>Identity, Mission, Goal, Rule, Problem, Concentration</i> and outcomes <i>Psychological & Sociological Aspects</i>.
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_ref2:
+    st.markdown("""
+    <div class="mental-approach-box">
+        <b>🧠 Mental Approaches (MA) Logic:</b><br>
+        Focuses on cognitive transformation filters: <i>Perspective shifting, Core dynamics, Bipolarity, Induction, and Whole/Part optimization</i>.
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("### 🛠️ Configure Your Multi-Dimensional Cognitive Build")
 
@@ -500,12 +517,19 @@ with r4_c3:
     sel_tools = st.multiselect("9. Specific Tools:", sorted(list(set(agg_tool))), default=[])
 
 st.divider()
-# UI REVISION: Added file attachment to the right of the inquiry box
-col_inq_main, col_inq_attach = st.columns([3, 1])
-with col_inq_main:
-    user_query = st.text_area("❓ Your Synthesis Inquiry:", 
-                             placeholder="Type 'create useful ideas' to involve the Metamodel and Mental Approach Logic.",
+
+# UI REVISION: SEPARATED INQUIRY BOXES FOR SYNTHESIS AND IDEA PRODUCTION
+col_inq_syn, col_inq_idea, col_inq_attach = st.columns([2, 2, 1])
+
+with col_inq_syn:
+    user_query = st.text_area("❓ Knowledge Synthesis Inquiry:", 
+                             placeholder="Standard interdisciplinary research or synthesis question.",
                              height=150, key="user_query_key")
+
+with col_inq_idea:
+    idea_query = st.text_area("💡 Idea Production Inquiry:", 
+                             placeholder="Box for 'Useful Innovative Ideas' specifically leveraging the Metamodel (IMA) and Mental Approaches (MA).",
+                             height=150, key="idea_query_key")
 
 with col_inq_attach:
     uploaded_file = st.file_uploader("📂 Attach .txt (max 2MB):", type=['txt'], help="Append a text file as supplementary context for your inquiry.")
@@ -517,70 +541,51 @@ with col_inq_attach:
             file_attachment_content = uploaded_file.read().decode("utf-8")
             st.success(f"File attached: {uploaded_file.name}")
 
-# Logic to combine manual query with file attachment content
+# Combined Logic for Context processing
+processed_query_context = f"""
+[PRIMARY SYNTHESIS INQUIRY]: {user_query}
+[IDEA PRODUCTION INQUIRY]: {idea_query}
+"""
 if file_attachment_content:
-    processed_query = f"{user_query}\n\n[SUPPLEMENTAL DATA FROM ATTACHMENT]:\n{file_attachment_content}"
-else:
-    processed_query = user_query
+    processed_query_context += f"\n\n[SUPPLEMENTAL DATA FROM ATTACHMENT]:\n{file_attachment_content}"
 
 # =========================================================
 # 3. JEDRO SINTEZE: GROQ AI + INTERCONNECTED 18D GRAPH
 # =========================================================
 if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=True):
     if not api_key: st.error("Missing Groq API Key. Please provide your own key in the sidebar.")
-    elif not user_query: st.warning("Please provide an inquiry.")
+    elif not user_query and not idea_query: st.warning("Please provide at least one inquiry.")
     else:
         try:
             # --- DEFINE LOGIC FLAGS ---
-            q_lower = user_query.lower()
+            full_text_input = (user_query + " " + idea_query).lower()
             
-            # Phrase detection for production vs synthesis
-            trigger_idea_prod = "use hierarchical associative logic and integrated metamodel architecture and mental approach logic"
-            trigger_create_useful = "create useful ideas"
-            trigger_hier_assoc = "use hierarchical associative logic"
+            # Identify if the demand involves production
+            is_idea_mode = (idea_query.strip() != "") or ("create useful ideas" in full_text_input) or ("innovative ideas" in full_text_input)
+            
+            # Determine logic type based on specific demands
             trigger_strict_hier = "use strict hierarchical logic"
             trigger_relational = "use relational logic"
             
-            # Identify if the demand is for production + synthesis or just synthesis
-            is_idea_mode = (trigger_idea_prod in q_lower) or (trigger_create_useful in q_lower) or ("innovative ideas" in q_lower)
-            
-            # Determine logic type based on specific demands
-            if trigger_strict_hier in q_lower:
+            if trigger_strict_hier in full_text_input:
                 logic_type = "Strict hierarchical logic"
                 logic_desc = "Uporabi IZKLJUČNO hierarhične relacije: TT (Top Term), BT (Broader Term), NT (Narrower Term). Fokus na vertikalni taksonomiji."
-            elif trigger_relational in q_lower:
+            elif trigger_relational in full_text_input:
                 logic_type = "Relational logic"
                 logic_desc = "Uporabi IZKLJUČNO lateralne relacije: AS (Associative), EQ (Equivalent), IN (Inheritance/Class). Fokus na mrežni povezanosti."
             else:
                 logic_type = "Hierarchical associative logic"
                 logic_desc = "Uporabi CELOTEN nabor relacij: TT (Top Term), BT (Broader Term), NT (Narrower Term), RT (Related Term), AS (Associative), EQ (Equivalent) in IN (Inheritance/Instance)."
 
-            # --- STEP 2: SUPERIOR IDEA PRODUCTION LOGIC ---
-            idea_production_prompt = ""
-            metamodel_instruction = ""
-            mental_approaches_instruction = ""
+            # --- STEP 2: SUPERIOR DUAL-ARCHITECTURE CONNECTION ---
+            # Explicit separation of instructions for the Language Model
+            metamodel_instruction = f"MANDATORY IMA ARCHITECTURE INTEGRATION (IMA + SPECIAL ADD-ON): {json.dumps(HUMAN_THINKING_METAMODEL)}"
+            mental_approaches_instruction = f"MANDATORY MENTAL APPROACHES DIAGRAM LOGIC (MA): {json.dumps(MENTAL_APPROACHES_ONTOLOGY)}"
             
+            idea_production_prompt = ""
             if is_idea_mode:
-                # ONLY involve Integrated Metamodel Architecture AND Mental Approach Logic when explicitly producing ideas
-                metamodel_instruction = f"CORE METAMODEL INTEGRATION (MANDATORY): {json.dumps(HUMAN_THINKING_METAMODEL)}"
-                
-                # PRIPRAVA MENTAL APPROACHES KONTEKSTA
-                mental_approaches_context = json.dumps(MENTAL_APPROACHES_ONTOLOGY)
-                mental_approaches_instruction = f"""
-                MENTAL APPROACHES DIAGRAM LOGIC (MANDATORY):
-                Incorporate the directional logic and inter-node connections defined here: {mental_approaches_context}.
-                Key structural paths to observe from the image:
-                - 'Core' leads to 'Similarity and difference', 'Attraction', and 'Repulsion'.
-                - 'Repulsion' triggers 'Bipolarity and dialectics'.
-                - 'Induction' and 'Whole and part' are mutually dependent.
-                - 'Whole and part' flows into 'Mini-max'.
-                - 'Hierarchy' flows into 'Balance' which reconciliation 'Addition and composition' and 'Abstraction and elimination'.
-                - 'Deduction' defines 'Hierarchy' and evaluations through 'Pleasure and displeasure'.
-                """
-                
                 idea_production_prompt = """
                 *** SUPERIOR IDEA PRODUCTION MODE ACTIVE ***
-                The user explicitly commanded 'Create useful ideas' or combined logic with Metamodel/Mental frameworks.
                 You are now expected to PERFORM KNOWLEDGE SYNTHESIS AND PRODUCE NEW USEFUL INNOVATIVE IDEAS.
                 Shift from descriptive analysis to RADICAL INNOVATION. 
                 Use nodes like 'Conflict situation', 'Problem', and 'Mental approaches' (e.g., Perspective shifting, Bipolarity) to:
@@ -589,33 +594,32 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 3. Propose 'Useful Innovative Ideas' that solve the stated problem using the rules provided.
                 Your response must emphasize original conceptual synthesis AND generative creativity.
                 """
-                st.markdown("""<div class="idea-mode-box">✨ Production & Synthesis Mode engaged: Generating novel innovative concepts using Metamodel and Mental Logic.</div>""", unsafe_allow_html=True)
+                st.markdown("""<div class="idea-mode-box">✨ Production & Synthesis Mode engaged: Generating novel innovative concepts using separated Metamodel and Mental Logic.</div>""", unsafe_allow_html=True)
             else:
-                # STANDALONE Knowledge Synthesis (No Thinking Metamodel or Mental Approach logic involved)
                 idea_production_prompt = """
                 *** KNOWLEDGE SYNTHESIS MODE ***
-                The user is looking for knowledge synthesis and structured organization.
-                Focus on structured analysis, taxonomy, and interconnectedness within the provided science fields. 
-                DO NOT focus on producing hypothetical innovative ideas. Focus strictly on existing knowledge structures and their relationships.
+                Focus strictly on existing knowledge structures, taxonomy, and scientific interconnectedness.
                 """
-                metamodel_instruction = "In this mode, do not use the 'Human Thinking' metamodel."
-                mental_approaches_instruction = "In this mode, do not use the 'Mental Approach' logic. Focus purely on the domain-specific science fields selected."
 
             biblio = fetch_author_bibliographies(target_authors) if target_authors else ""
             client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
             
-            # SISTEMSKO NAVODILO
+            # SISTEMSKO NAVODILO (Full dissertation requirement)
             sys_prompt = f"""
             You are the SIS Synthesizer. Perform an exhaustive dissertation (1500+ words).
             
+            CONNECTION TO SEPARATED ARCHITECTURES:
+            - INTEGRATED METAMODEL (IMA): Apply the structural reasoning logic of Identity, Rules, and Goals.
+            - MENTAL APPROACHES (MA): Apply the cognitive transformation logic of Dialectics and Perspective Shifting.
+            
+            DATA STRUCTURES TO INTEGRATE:
+            - {metamodel_instruction}
+            - {mental_approaches_instruction}
+
             MANDATORY ARCHITECTURAL LOGIC: {logic_type}
             {logic_desc}
 
             {idea_production_prompt}
-
-            {metamodel_instruction}
-            
-            {mental_approaches_instruction}
             
             FIELDS: {", ".join(sel_sciences)}. CONTEXT AUTHORS: {biblio}.
             
@@ -623,7 +627,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             
             GEOMETRICAL VISUALIZATION TASK:
             - Analyze user inquiry for shape preferences. Default shape is 'ellipse'. 
-            - Use colors and shapes from the contexts provided (Metamodel/Mental only if idea mode).
+            - Use colors and shapes from the IMA and MA contexts provided.
             
             STRICT FORMATTING & SPACE ALLOCATION:
             - Focus 100% of the textual content on deep research and interdisciplinary synergy.
@@ -640,7 +644,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             with st.spinner('Synthesizing exhaustive interdisciplinary synergy (8–40s)...'):
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
-                    messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": processed_query}],
+                    messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": processed_query_context}],
                     temperature=0.75 if is_idea_mode else 0.45, 
                     max_tokens=4000
                 )
@@ -653,7 +657,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 if len(parts) > 1:
                     try:
                         g_json = json.loads(re.search(r'\{.*\}', parts[1], re.DOTALL).group())
-                        # 1. Koncepti -> Google Search + ID značka
+                        # 1. Koncepti -> Google Search + ID značka (Anchor linking logic)
                         for n in g_json.get("nodes", []):
                             lbl, nid = n["label"], n["id"]
                             g_url = urllib.parse.quote(lbl)
@@ -679,8 +683,8 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 if len(parts) > 1:
                     try:
                         g_json = json.loads(re.search(r'\{.*\}', parts[1], re.DOTALL).group())
-                        st.subheader("🕸️ Metamodel-Driven Semantic Network")
-                        st.caption(f"{logic_type} utilizing Human Thinking Metamodel Logic")
+                        st.subheader("🕸️ Integrated Architectural Semantic Network")
+                        st.caption(f"{logic_type} utilizing IMA and MA Logic")
                         
                         elements = []
                         for n in g_json.get("nodes", []):
@@ -708,7 +712,8 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
-st.caption("SIS Universal Knowledge Synthesizer | v21.2 Synthesis vs Idea Production Engine | 2026")
+st.caption("SIS Universal Knowledge Synthesizer | v22.1 Separation Architecture Engine | 2026")
+
 
 
 
