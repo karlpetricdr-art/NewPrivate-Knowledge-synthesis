@@ -406,8 +406,8 @@ with st.sidebar:
     st.markdown(f'<div style="text-align:center"><img src="data:image/svg+xml;base64,{get_svg_base64(SVG_3D_RELIEF)}" width="220"></div>', unsafe_allow_html=True)
     st.header("⚙️ Control Panel")
     
-    # ADDED: Provider selection
-    api_provider = st.selectbox("API Provider:", ["Groq", "DeepSeek"], index=0)
+    # Provider selection: Groq vs Cerebras
+    api_provider = st.selectbox("API Provider:", ["Groq", "Cerebras"], index=0)
     
     api_key = st.text_input(
         f"{api_provider} API Key:", 
@@ -606,13 +606,13 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
             biblio = fetch_author_bibliographies(target_authors) if target_authors else ""
             
-            # --- API CLIENT SELECTION ---
+            # --- API CLIENT SELECTION: Groq vs Cerebras ---
             if api_provider == "Groq":
                 client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
                 model_name = "llama-3.3-70b-versatile"
-            else:
-                client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
-                model_name = "deepseek-reasoner" # Using R1 for deep architectural logic
+            else: # Cerebras implementation
+                client = OpenAI(api_key=api_key, base_url="https://api.cerebras.ai/v1")
+                model_name = "llama3.1-70b" 
             
             # SISTEMSKO NAVODILO (Full dissertation requirement)
             sys_prompt = f"""
@@ -722,4 +722,5 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
-st.caption("SIS Universal Knowledge Synthesizer | v22.2 Separation Architecture Engine | DeepSeek Integrated | 2026")
+st.caption("SIS Universal Knowledge Synthesizer | v22.4 Separation Architecture Engine | Cerebras Integrated | 2026")
+
