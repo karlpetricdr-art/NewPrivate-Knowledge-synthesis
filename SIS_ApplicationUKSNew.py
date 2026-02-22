@@ -406,8 +406,11 @@ with st.sidebar:
     st.markdown(f'<div style="text-align:center"><img src="data:image/svg+xml;base64,{get_svg_base64(SVG_3D_RELIEF)}" width="220"></div>', unsafe_allow_html=True)
     st.header("⚙️ Control Panel")
     
+    # ADDED: Provider selection
+    api_provider = st.selectbox("API Provider:", ["Groq", "DeepSeek"], index=0)
+    
     api_key = st.text_input(
-        "Groq API Key:", 
+        f"{api_provider} API Key:", 
         type="password", 
         help="Security: Your key is held only in volatile RAM and is never stored on our servers."
     )
@@ -550,10 +553,10 @@ if file_attachment_content:
     processed_query_context += f"\n\n[SUPPLEMENTAL DATA FROM ATTACHMENT]:\n{file_attachment_content}"
 
 # =========================================================
-# 3. JEDRO SINTEZE: GROQ AI + INTERCONNECTED 18D GRAPH
+# 3. JEDRO SINTEZE: MULTI-PROVIDER AI + INTERCONNECTED 18D GRAPH
 # =========================================================
 if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=True):
-    if not api_key: st.error("Missing Groq API Key. Please provide your own key in the sidebar.")
+    if not api_key: st.error(f"Missing {api_provider} API Key. Please provide your own key in the sidebar.")
     elif not user_query and not idea_query: st.warning("Please provide at least one inquiry.")
     else:
         try:
@@ -602,7 +605,14 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 """
 
             biblio = fetch_author_bibliographies(target_authors) if target_authors else ""
-            client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
+            
+            # --- API CLIENT SELECTION ---
+            if api_provider == "Groq":
+                client = OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1")
+                model_name = "llama-3.3-70b-versatile"
+            else:
+                client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+                model_name = "deepseek-reasoner" # Using R1 for deep architectural logic
             
             # SISTEMSKO NAVODILO (Full dissertation requirement)
             sys_prompt = f"""
@@ -641,9 +651,9 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
             JSON schema: {{"nodes": [{{"id": "n1", "label": "Text", "type": "Root|Branch|Leaf|Class", "color": "#hex", "shape": "triangle|rectangle|ellipse|diamond"}}], "edges": [{{"source": "n1", "target": "n2", "rel_type": "BT|NT|AS|TT|outcome_of"}}]}}
             """
             
-            with st.spinner('Synthesizing exhaustive interdisciplinary synergy (8–40s)...'):
+            with st.spinner(f'Synthesizing using {api_provider} ({model_name})...'):
                 response = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
+                    model=model_name,
                     messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": processed_query_context}],
                     temperature=0.75 if is_idea_mode else 0.45, 
                     max_tokens=4000
@@ -676,7 +686,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                                     main_markdown = a_pattern.sub(a_rep, main_markdown)
                     except: pass
 
-                st.subheader("📊 Synthesis Output")
+                st.subheader(f"📊 Synthesis Output ({api_provider})")
                 st.markdown(main_markdown, unsafe_allow_html=True)
 
                 # --- VIZUALIZACIJA (Interconnected Graph) ---
@@ -712,17 +722,4 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
-st.caption("SIS Universal Knowledge Synthesizer | v22.1 Separation Architecture Engine | 2026")
-
-
-
-
-
-
-
-
-
-
-
-
-
+st.caption("SIS Universal Knowledge Synthesizer | v22.2 Separation Architecture Engine | DeepSeek Integrated | 2026")
