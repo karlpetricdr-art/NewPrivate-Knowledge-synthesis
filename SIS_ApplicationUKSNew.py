@@ -612,8 +612,9 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 model_name = "llama-3.3-70b-versatile"
             else: # Cerebras implementation
                 client = OpenAI(api_key=api_key, base_url="https://api.cerebras.ai/v1")
-                # Using the appropriate high-speed Llama model for Cerebras
-                model_name = "llama-3.3-70b"    
+                # FIXED: Cerebras uses "llama3.3-70b" (no dash between llama and 3)
+                # If llama3.3-70b still fails, change it to "llama3.1-70b"
+                model_name = "llama3.3-70b"    
             
             # SISTEMSKO NAVODILO (Full dissertation requirement)
             sys_prompt = f"""
