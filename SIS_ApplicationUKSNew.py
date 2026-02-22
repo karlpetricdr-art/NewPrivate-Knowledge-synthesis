@@ -612,7 +612,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 model_name = "llama-3.3-70b-versatile"
             else: # Cerebras implementation
                 client = OpenAI(api_key=api_key, base_url="https://api.cerebras.ai/v1")
-                model_name = "llama3.1-70b" 
+                model_name = "llama3.3-70b" 
             
             # SISTEMSKO NAVODILO (Full dissertation requirement)
             sys_prompt = f"""
@@ -723,5 +723,6 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v22.4 Separation Architecture Engine | Cerebras Integrated | 2026")
+
 
 
