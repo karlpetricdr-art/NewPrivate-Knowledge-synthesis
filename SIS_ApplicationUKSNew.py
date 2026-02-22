@@ -612,7 +612,9 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 model_name = "llama-3.3-70b-versatile"
             else: # Cerebras implementation
                 client = OpenAI(api_key=api_key, base_url="https://api.cerebras.ai/v1")
-                model_name = "Mistral‑7B‑Instruct" 
+                model_name = "# The correct identifier for the current public release
+MISTRAL_REPO = "mistralai/Mistral-7B-Instruct-v0.1"   # ← most recent stable release
+# (If a newer v0.2 is available, just replace the suffix with v0.2)" 
             
             # SISTEMSKO NAVODILO (Full dissertation requirement)
             sys_prompt = f"""
@@ -723,6 +725,7 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
 st.caption("SIS Universal Knowledge Synthesizer | v22.4 Separation Architecture Engine | Cerebras Integrated | 2026")
+
 
 
 
