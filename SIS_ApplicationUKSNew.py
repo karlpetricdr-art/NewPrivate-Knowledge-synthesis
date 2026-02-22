@@ -612,9 +612,10 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                 model_name = "llama-3.3-70b-versatile"
             else: # Cerebras implementation
                 client = OpenAI(api_key=api_key, base_url="https://api.cerebras.ai/v1")
-                # FIXED: Cerebras uses this exact Mistral identifier
-                # If you prefer Llama, use "llama3.1-70b" (no dash after llama)
-                model_name = "mistral-7b-v0.3" 
+                # NEW FEB 2026 PRODUCTION MODELS:
+                # Use "gpt-oss-120b" for deep synthesis (Dissertations/Ideas)
+                # Use "llama3.1-8b" for high-speed simple tasks
+                model_name = "gpt-oss-120b" 
             
             # SISTEMSKO NAVODILO (Full dissertation requirement)
             sys_prompt = f"""
