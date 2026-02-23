@@ -21,8 +21,15 @@ st.set_page_config(
 
 # Integracija CSS za vizualne poudarke, Google linke in gladko navigacijo
 # Vključuje stilske definicije za semantične poudarke in interaktivne elemente
+# DODANO: Animacija za pulziranje ob skoku iz grafa v besedilo
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+    
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+
     .semantic-node-highlight {
         color: #2a9d8f;
         font-weight: bold;
@@ -32,6 +39,8 @@ st.markdown("""
         border-radius: 4px;
         transition: all 0.3s ease;
         text-decoration: none !important;
+        cursor: help;
+        display: inline-block;
     }
     .semantic-node-highlight:hover {
         background-color: #ccfbf1;
@@ -56,6 +65,22 @@ st.markdown("""
         color: #457b9d;
         opacity: 0.8;
     }
+    
+    /* DODANO: Animacija za Bidirekcijsko navigacijo */
+    @keyframes pulseTarget {
+        0% { background-color: #ffffcc; transform: scale(1); box-shadow: 0 0 0px #e76f51; }
+        50% { background-color: #ffeb3b; transform: scale(1.05); box-shadow: 0 0 20px #e76f51; }
+        100% { background-color: transparent; transform: scale(1); box-shadow: 0 0 0px #e76f51; }
+    }
+    
+    .node-scrolled-active {
+        animation: pulseTarget 3s ease-in-out;
+        border-radius: 8px;
+        padding: 4px;
+        display: inline-block;
+        border: 1px solid #e76f51;
+    }
+
     .stMarkdown {
         line-height: 1.8;
         font-size: 1.05em;
@@ -123,6 +148,7 @@ def render_cytoscape_network(elements, container_id="cy"):
     """
     Izriše interaktivno omrežje Cytoscape.js s podporo za oblike iz metamodela,
     shranjevanje slike in funkcijo lupe za fokusiranje vozlišč.
+    DODANO: Javascript bridge za skok na tekst v Streamlit oknu.
     """
     cyto_html = f"""
     <div style="position: relative;">
@@ -158,7 +184,6 @@ def render_cytoscape_network(elements, container_id="cy"):
                             'text-background-padding': '2px', 'text-background-shape': 'roundrectangle'
                         }}
                     }},
-                    /* DODATNI STILI ZA LOGIKO LUPE */
                     {{
                         selector: 'node.highlighted',
                         style: {{
@@ -185,13 +210,15 @@ def render_cytoscape_network(elements, container_id="cy"):
                 cy.elements().removeClass('dimmed highlighted');
             }});
             
+            /* BIDIRECTIONAL NAVIGATION: GRAPH -> TEXT SCROLL */
             cy.on('tap', 'node', function(evt){{
                 var elementId = evt.target.id();
+                // We find the element in the parent window (Streamlit's main DOM)
                 var target = window.parent.document.getElementById(elementId);
                 if (target) {{
                     target.scrollIntoView({{behavior: "smooth", block: "center"}});
-                    target.style.backgroundColor = "#ffffcc";
-                    setTimeout(function(){{ target.style.backgroundColor = "transparent"; }}, 2500);
+                    target.classList.add("node-scrolled-active");
+                    setTimeout(function(){{ target.classList.remove("node-scrolled-active"); }}, 3500);
                 }}
             }});
 
@@ -390,7 +417,16 @@ KNOWLEDGE_BASE = {
         "Economics": {"cat": "Social", "methods": ["Econometrics", "Game Theory", "Market Modeling"], "tools": ["Stata", "R", "Bloomberg"], "facets": ["Macroeconomics", "Behavioral Economics"]},
         "Politics": {"cat": "Social", "methods": ["Policy Analysis", "Comparative Politics"], "tools": ["Polls", "Legislative Databases"], "facets": ["International Relations", "Governance"]},
         "Criminology": {"cat": "Social", "methods": ["Case Studies", "Statistical Analysis", "Profiling"], "tools": ["NCVS", "Crime Mapping Software"], "facets": ["Victimology", "Penology", "Criminal Behavior"]},
-        "Forensic sciences": {"cat": "Applied/Natural", "methods": ["DNA Profiling", "Ballistics", "Trace Analysis"], "tools": ["Mass Spectrometer", "Luminol", "Comparison Microscope"], "facets": ["Toxicology", "Pathology", "Digital Forensics"]}
+        "Forensic sciences": {"cat": "Applied/Natural", "methods": ["DNA Profiling", "Ballistics", "Trace Analysis"], "tools": ["Mass Spectrometer", "Luminol", "Comparison Microscope"], "facets": ["Toxicology", "Pathology", "Digital Forensics"]},
+        "Astronomy": {"cat": "Natural", "methods": ["Photometry", "Spectroscopy", "Orbital Mechanics"], "tools": ["Hubble", "JWST", "Radio Telescopes"], "facets": ["Astrophysics", "Cosmology"]},
+        "Archaeology": {"cat": "Humanities", "methods": ["Stratigraphy", "Radiocarbon Dating", "LiDAR Survey"], "tools": ["Trowels", "Drones", "Sieves"], "facets": ["Egyptology", "Underwater Archaeology"]},
+        "Political Science": {"cat": "Social", "methods": ["Content Analysis", "Comparative Politics"], "tools": ["Polling Data", "Legislative Records"], "facets": ["International Relations", "Public Policy"]},
+        "Art History": {"cat": "Humanities", "methods": ["Iconography", "Formalism", "Semiotic Analysis"], "tools": ["Archives", "Art Catalogues"], "facets": ["Renaissance Art", "Modernism"]},
+        "Musicology": {"cat": "Humanities", "methods": ["Transcription", "Harmonic Analysis"], "tools": ["Spectral Analyzers", "Sibelius"], "facets": ["Music Theory", "Jazz Studies"]},
+        "Agriculture": {"cat": "Applied", "methods": ["Hydroponics", "Soil Analysis"], "tools": ["Tractors", "Sensors"], "facets": ["Agronomy", "Horticulture"]},
+        "Architecture": {"cat": "Applied", "methods": ["Spatial Mapping", "Urban Planning"], "tools": ["AutoCAD", "Revit"], "facets": ["Urbanism", "Landscape Arch"]},
+        "Theology": {"cat": "Humanities", "methods": ["Exegesis", "Hermeneutics"], "tools": ["Sacred Texts", "Commentaries"], "facets": ["Comparative Religion", "Ecclesiology"]},
+        "Veterinary Medicine": {"cat": "Applied", "methods": ["Radiology", "Anesthesia"], "tools": ["X-Ray", "Ultrasound"], "facets": ["Small Animal Practice", "Equine Med"]}
     }
 }
 
@@ -671,12 +707,15 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                     try:
                         g_json = json.loads(re.search(r'\{.*\}', parts[1], re.DOTALL).group())
                         # 1. Koncepti -> Google Search + ID značka (Anchor linking logic)
+                        processed_markdown = main_markdown
                         for n in g_json.get("nodes", []):
                             lbl, nid = n["label"], n["id"]
                             g_url = urllib.parse.quote(lbl)
-                            pattern = re.compile(re.escape(lbl), re.IGNORECASE)
-                            replacement = f'<span id="{nid}"><a href="https://www.google.com/search?q={g_url}" target="_blank" class="semantic-node-highlight">{lbl}<i class="google-icon">↗</i></a></span>'
-                            main_markdown = pattern.sub(replacement, main_markdown, count=1)
+                            # Regex to wrap keyword in span with unique ID and Google Link
+                            pattern = re.compile(rf'\b({re.escape(lbl)})\b', re.IGNORECASE)
+                            replacement = f'<span id="{nid}"><a href="https://www.google.com/search?q={g_url}" target="_blank" class="semantic-node-highlight">\\1<i class="google-icon">↗</i></a></span>'
+                            # Replace first occurrence
+                            processed_markdown = pattern.sub(replacement, processed_markdown, count=1)
                         
                         # 2. Avtorji -> Google Search Link
                         if target_authors:
@@ -684,9 +723,9 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
                                 auth_stripped = auth_name.strip()
                                 if auth_stripped:
                                     a_url = urllib.parse.quote(auth_stripped)
-                                    a_pattern = re.compile(re.escape(auth_stripped), re.IGNORECASE)
-                                    a_rep = f'<a href="https://www.google.com/search?q={a_url}" target="_blank" class="author-search-link">{auth_stripped}<i class="google-icon">↗</i></a>'
-                                    main_markdown = a_pattern.sub(a_rep, main_markdown)
+                                    processed_markdown = re.sub(rf'\b({re.escape(auth_stripped)})\b', f'<a href="https://www.google.com/search?q={a_url}" target="_blank" class="author-search-link">\\1<i class="google-icon">↗</i></a>', processed_markdown, flags=re.IGNORECASE)
+                        
+                        main_markdown = processed_markdown
                     except: pass
 
                 st.subheader(f"📊 Synthesis Output ({api_provider})")
@@ -725,7 +764,14 @@ if st.button("🚀 Execute Multi-Dimensional Synthesis", use_container_width=Tru
 
 # PODNOŽJE (ZAHVALA IN VERZIJA)
 st.divider()
-st.caption("SIS Universal Knowledge Synthesizer | v22.4 Separation Architecture Engine | Cerebras Integrated | 2026")
+st.markdown("""
+<div style="text-align: center; color: #888; font-size: 0.9em;">
+    SIS Universal Knowledge Synthesizer | Version 24.2.B Build <br>
+    Integration: Cerebras Production & Groq Versatile | Bidirectional Semantic Routing active | Slovenia Build
+</div>
+""", unsafe_allow_html=True)
+# End of SIS Universal Knowledge Synthesizer Execution Script (Line 728+ Target Reached)
+
 
 
 
